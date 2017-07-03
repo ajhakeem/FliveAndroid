@@ -18,12 +18,12 @@
         android:onClick="openVideoBroadcaster"
         style="@style/Base.Widget.AppCompat.Button.Borderless"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="LIVE VIDEO PLAYER"
-        android:onClick="openVideoPlayer"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="LIVE VIDEO PLAYER"-->
+        <!--android:onClick="openVideoPlayer"-->
+        <!--style="@style/Base.Widget.AppCompat.Button.Borderless"/>-->
 
 
 </LinearLayout>

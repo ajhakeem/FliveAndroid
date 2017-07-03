@@ -7,34 +7,37 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collector;
 
 /**
- * Created by mohsal on 7/1/17.
+ * Created by mohsal on 7/3/17.
  */
 
-public class Post extends Http {
+public class Get extends Http {
 
-    public Post(Context context) {
+    public Get(Context context) {
         super();
         requestQueue = HttpRequestQueue.getQueue(context);
     }
 
+    public String convertMapToString(HashMap<String, String> params) {
+        return params.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).reduce("", String::concat);
+    }
+
     @Override
-    public void request(String url, HashMap<String, String> params, final Http.Callback callback) {
-        Log.d("Making", "post");
-        Log.d("Params", new JSONObject(params).toString());
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params), new Response.Listener<JSONObject>() {
+    public void request(String url, HashMap<String, String> params, Http.Callback callback) {
+        url = url + convertMapToString(params);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("Making", response.toString());
                 try {
                     callback.onSuccess(response);
                 } catch (JSONException e) {
@@ -44,7 +47,6 @@ public class Post extends Http {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("error", error.toString());
                 callback.Onerror(error);
             }
         }) {
@@ -53,14 +55,13 @@ public class Post extends Http {
                 return mHeaders;
             }
         };
-        requestQueue.add(jsObjRequest);
     }
 
     @Override
-    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Http.Callback callback) {
-        Log.d("Making", "post");
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, Callback callback) {
+        url = url + convertMapToString(params);
         mHeaders.putAll(headers);
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params), new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
@@ -69,16 +70,16 @@ public class Post extends Http {
                     e.printStackTrace();
                 }
             }
-        }, error -> {
-            Log.d("error", error.toString());
-            callback.Onerror(error);
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.Onerror(error);
+            }
         }) {
             @Override
             public Map<String, String> getHeaders() {
                 return mHeaders;
             }
         };
-        requestQueue.add(jsObjRequest);
     }
 }
-

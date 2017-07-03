@@ -73,7 +73,7 @@ import java.net.CookiePolicy;
 
 import co.fanstories.android.liveVideoBroadcaster.R;
 
-import static co.fanstories.android.MainActivity.RTMP_BASE_URL;
+import static co.fanstories.android.liveVideoBroadcaster.URL.RTMP_BASE_URL;
 
 /**
  * An activity that plays media using {@link SimpleExoPlayer}.

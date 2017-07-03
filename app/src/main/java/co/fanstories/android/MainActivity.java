@@ -10,8 +10,6 @@ import co.fanstories.android.liveVideoPlayer.LiveVideoPlayerActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String RTMP_BASE_URL = "rtmp://54.201.16.95/dash/";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

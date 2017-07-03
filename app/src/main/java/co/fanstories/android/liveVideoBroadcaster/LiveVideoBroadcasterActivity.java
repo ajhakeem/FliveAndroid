@@ -38,7 +38,7 @@ import io.antmedia.android.broadcaster.ILiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.LiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.utils.Resolution;
 
-import static co.fanstories.android.MainActivity.RTMP_BASE_URL;
+import static co.fanstories.android.liveVideoBroadcaster.URL.RTMP_BASE_URL;
 
 public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 

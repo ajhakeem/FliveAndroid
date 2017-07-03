@@ -34,6 +34,7 @@ import java.util.Map;
 
 import co.fanstories.android.MainActivity;
 import co.fanstories.android.http.Callback;
+import co.fanstories.android.http.Http;
 import co.fanstories.android.liveVideoBroadcaster.R;
 import co.fanstories.android.user.Token;
 import co.fanstories.android.user.User;
@@ -223,7 +224,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         public void execute() {
-            authGateway.login(loginParams, new Callback() {
+            authGateway.login(loginParams, new Http.Callback() {
                 @Override
                 public void onSuccess(JSONObject res) throws JSONException {
                     response = JSONUtils.jsonToMap(res);

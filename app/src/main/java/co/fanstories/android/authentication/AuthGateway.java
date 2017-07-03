@@ -2,6 +2,7 @@ package co.fanstories.android.authentication;
 
 import android.content.Context;
 import co.fanstories.android.http.Callback;
+import co.fanstories.android.http.Http;
 import co.fanstories.android.http.Post;
 
 import android.util.Log;
@@ -14,22 +15,23 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static co.fanstories.android.http.Http.ROOT_URL;
+
 /**
  * Created by mohsal on 6/2/17.
  */
 
 public class AuthGateway {
-    static final String ROOT = "https://testapi.fbfanadnetwork.com";
     final String SEPERATOR = "/";
-    final String LOGIN_PATH = ROOT + "/users/login.php";
-    final Post httpRequest;
+    final String LOGIN_PATH = ROOT_URL + "/users/login.php";
+    final Post httpPostRequest;
 
     AuthGateway (Context context) {
-        httpRequest = new Post(context);
+        httpPostRequest = new Post(context);
     }
 
-    public void login(HashMap<String, String> params, final Callback callback) {
-        httpRequest.post(LOGIN_PATH, params, new Callback() {
+    public void login(HashMap<String, String> params, final Http.Callback callback) {
+        httpPostRequest.request(LOGIN_PATH, params, new Http.Callback() {
 
             @Override
             public void onSuccess(JSONObject response) throws JSONException {

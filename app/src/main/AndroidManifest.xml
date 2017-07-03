@@ -22,16 +22,14 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity
-            android:name="co.fanstories.android.SplashActivity">
+        <activity android:name="co.fanstories.android.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="co.fanstories.android.MainActivity">
-        </activity>
+        <activity android:name="co.fanstories.android.MainActivity"></activity>
         <activity
             android:name=".LiveVideoBroadcasterActivity"
             android:theme="@style/AppThemeDark" />
@@ -40,9 +38,13 @@
             android:theme="@style/AppThemeDark" />
         <activity
             android:name="co.fanstories.android.authentication.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login" />
         1
         <service android:name="io.antmedia.android.broadcaster.LiveVideoBroadcaster" />
+
+        <activity
+            android:name="co.fanstories.android.MenuActivity"
+            android:label="@string/title_activity_menu"></activity>
     </application>
 
 </manifest>
