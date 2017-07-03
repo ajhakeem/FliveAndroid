@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import co.fanstories.android.R;
 import io.antmedia.android.broadcaster.utils.Resolution;
 
 /**

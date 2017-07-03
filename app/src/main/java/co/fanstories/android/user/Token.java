@@ -20,6 +20,7 @@ import co.fanstories.android.utils.jwt.JWTUtils;
  */
 
 public class Token {
+    private static final String TAG = "Token";
     public static final String TOKEN_KEY = "FliveTOken";
     public static String TOKEN = "";
     SharedPreferences mData;
@@ -27,6 +28,7 @@ public class Token {
     public Token (SharedPreferences data) {
         mData = data;
         TOKEN = get();
+        Log.d(TAG, TOKEN);
     }
 
     public void put(String token) {

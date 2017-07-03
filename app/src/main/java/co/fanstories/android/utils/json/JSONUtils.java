@@ -9,12 +9,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by mohsal on 6/2/17.
  */
 
 public class JSONUtils {
+    public static List<Object> jsonToList(JSONArray json) throws JSONException {
+        return toList(json);
+    }
+
     public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
         Map<String, Object> retMap = new HashMap<String, Object>();
 

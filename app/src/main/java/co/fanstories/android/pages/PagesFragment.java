@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import co.fanstories.android.liveVideoBroadcaster.R;
+import co.fanstories.android.R;
 
 /**
  * A simple {@link Fragment} subclass.

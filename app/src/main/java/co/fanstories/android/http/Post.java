@@ -28,7 +28,7 @@ public class Post extends Http {
     }
 
     @Override
-    public void request(String url, HashMap<String, String> params, final Http.Callback callback) {
+    public void request(String url, HashMap<String, String> params, final Callback callback) {
         Log.d("Making", "post");
         Log.d("Params", new JSONObject(params).toString());
         JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params), new Response.Listener<JSONObject>() {
@@ -57,7 +57,7 @@ public class Post extends Http {
     }
 
     @Override
-    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Http.Callback callback) {
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback) {
         Log.d("Making", "post");
         mHeaders.putAll(headers);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params), new Response.Listener<JSONObject>() {

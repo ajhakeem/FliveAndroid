@@ -36,7 +36,7 @@ import co.fanstories.android.HomeActivity;
 import co.fanstories.android.MainActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.http.Http;
-import co.fanstories.android.liveVideoBroadcaster.R;
+import co.fanstories.android.R;
 import co.fanstories.android.user.Token;
 import co.fanstories.android.user.User;
 import co.fanstories.android.utils.json.JSONUtils;
@@ -225,7 +225,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         public void execute() {
-            authGateway.login(loginParams, new Http.Callback() {
+            authGateway.login(loginParams, new Callback() {
                 @Override
                 public void onSuccess(JSONObject res) throws JSONException {
                     response = JSONUtils.jsonToMap(res);
@@ -233,7 +233,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (response.get("status").toString().equals("success")) {
                         try {
                             getApplicationContext();
-                            Token token = new Token(getSharedPreferences("FilvePref", MODE_APPEND));
+                            Token token = new Token(getSharedPreferences("FilvePref", MODE_PRIVATE));
                             if (token.present()) {
                                 Log.d("Token", "found");
                                 goToLogin();

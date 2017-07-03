@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(co.fanstories.android.liveVideoBroadcaster.R.layout.activity_main);
+        setContentView(co.fanstories.android.R.layout.activity_main);
     }
 
     public void openVideoBroadcaster(View view) {

@@ -30,8 +30,8 @@ public class AuthGateway {
         httpPostRequest = new Post(context);
     }
 
-    public void login(HashMap<String, String> params, final Http.Callback callback) {
-        httpPostRequest.request(LOGIN_PATH, params, new Http.Callback() {
+    public void login(HashMap<String, String> params, final Callback callback) {
+        httpPostRequest.request(LOGIN_PATH, params, new Callback() {
 
             @Override
             public void onSuccess(JSONObject response) throws JSONException {

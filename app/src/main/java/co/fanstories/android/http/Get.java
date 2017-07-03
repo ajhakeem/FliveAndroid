@@ -7,9 +7,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,7 +44,7 @@ public class Get extends Http {
     }
 
     @Override
-    public void request(String url, HashMap<String, String> params, Http.Callback callback) {
+    public void request(String url, HashMap<String, String> params, Callback callback) {
         url = url + "?" + convertMapToString(params);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -67,7 +69,6 @@ public class Get extends Http {
         requestQueue.add(jsonObjectRequest);
     }
 
-    @Override
     public void request(String url, HashMap<String, String> params, Map<String, String> headers, Callback callback) {
         url = url + convertMapToString(params);
         mHeaders.putAll(headers);
@@ -75,6 +76,34 @@ public class Get extends Http {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                try {
+                    callback.onSuccess(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.Onerror(error);
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                return mHeaders;
+            }
+        };
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    @Override
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, Callback callback, boolean returnsArray) {
+        url = url + convertMapToString(params);
+        mHeaders.putAll(headers);
+        Log.d(TAG, mHeaders.toString());
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
                 try {
                     callback.onSuccess(response);
                 } catch (JSONException e) {

@@ -3,6 +3,7 @@ package co.fanstories.android.http;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class Http {
     public static final String ROOT_URL = "https://testapi.fbfanadnetwork.com";
-
+    public static final boolean RETURNS_ARRAY = true;
     RequestQueue requestQueue;
 
     public Map<String, String> mHeaders;
@@ -26,18 +27,15 @@ public class Http {
         mHeaders.put("X-Client", "MOBILE");
     }
 
-    public interface Callback {
-        public void onSuccess(JSONObject response) throws JSONException;
-
-        public void Onerror(VolleyError error);
-    }
-
     public void request(String url, HashMap<String, String> params, final Callback callback) {
 
     }
 
-    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Http.Callback callback) {
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback) {
 
     }
 
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback, boolean returnsArray) {
+
+    }
 }

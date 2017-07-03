@@ -20,10 +20,11 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import co.fanstories.android.http.Callback;
 import co.fanstories.android.http.Http;
 import co.fanstories.android.liveVideoBroadcaster.LiveTestFragment;
 import co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
-import co.fanstories.android.liveVideoBroadcaster.R;
+import co.fanstories.android.R;
 import co.fanstories.android.pages.PageGateway;
 import co.fanstories.android.pages.PagesFragment;
 
@@ -64,9 +65,8 @@ public class MenuActivity extends AppCompatActivity implements PagesFragment.OnF
     private void loadPages() {
         Log.d(TAG, "load pages");
         PageGateway pageGateway = new PageGateway(getApplicationContext());
-        Log.d(TAG, PageGateway.token.get());
         HashMap<String, String> hashMap = new HashMap<>();
-        pageGateway.getPages(hashMap, new Http.Callback() {
+        pageGateway.getPages(hashMap, new Callback() {
             @Override
             public void onSuccess(JSONObject response) throws JSONException {
                 Log.d(TAG, response.toString());

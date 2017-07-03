@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.util.HashMap;
 
+import co.fanstories.android.http.Callback;
 import co.fanstories.android.http.Get;
 import co.fanstories.android.http.Http;
 import co.fanstories.android.user.Token;
@@ -20,22 +21,20 @@ public class PageGateway {
 
     public static Get httpGet;
 
-    public static Token token;
-
     public PageGateway(Context context) {
         httpGet = new Get(context);
-        token = new Token(context.getSharedPreferences("FlivePref", Context.MODE_APPEND));
-        Log.d(TAG, token.get());
+        Token token = new Token(context.getSharedPreferences("FilvePref", Context.MODE_APPEND));
     }
 
-    public void getPages(HashMap<String, String> params, Http.Callback callback) {
+    public void getPages(HashMap<String, String> params, Callback callback) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("Authrization", "Bearer " + Token.TOKEN);
+        headers.put("Authorization", "Bearer " + Token.TOKEN);
         httpGet.request(
                 Http.ROOT_URL + "/" + BASE_URI + "/" + GET_PAGES_URI,
                 params,
                 headers,
-                callback
+                callback,
+                Http.RETURNS_ARRAY
         );
     }
 }

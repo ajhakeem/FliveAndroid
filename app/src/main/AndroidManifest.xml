@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.fanstories.android.liveVideoBroadcaster">
+    package="co.fanstories.android">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +31,7 @@
         </activity>
         <activity android:name="co.fanstories.android.MainActivity" />
         <activity
-            android:name=".LiveVideoBroadcasterActivity"
+            android:name="co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity"
             android:theme="@style/AppThemeDark" />
         <activity
             android:name="co.fanstories.android.liveVideoPlayer.LiveVideoPlayerActivity"

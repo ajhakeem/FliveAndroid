@@ -71,7 +71,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
-import co.fanstories.android.liveVideoBroadcaster.R;
+import co.fanstories.android.R;
 
 import static co.fanstories.android.liveVideoBroadcaster.URL.RTMP_BASE_URL;
 

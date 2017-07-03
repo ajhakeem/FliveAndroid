@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import co.fanstories.android.liveVideoBroadcaster.R;
+import co.fanstories.android.R;
 
 /**
  * A simple {@link Fragment} subclass.
