@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.fanstories.android.HomeActivity;
 import co.fanstories.android.MainActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.http.Http;
@@ -254,7 +255,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 private void goToLogin() {
-                    Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                    Intent mainIntent = new Intent(LoginActivity.this, HomeActivity.class);
                     LoginActivity.this.startActivity(mainIntent);
                     LoginActivity.this.finish();
                 }

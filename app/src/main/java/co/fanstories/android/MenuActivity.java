@@ -13,13 +13,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.android.volley.VolleyError;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
+import co.fanstories.android.http.Http;
 import co.fanstories.android.liveVideoBroadcaster.LiveTestFragment;
 import co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
 import co.fanstories.android.liveVideoBroadcaster.R;
+import co.fanstories.android.pages.PageGateway;
 import co.fanstories.android.pages.PagesFragment;
-import co.fanstories.android.pages.dummy.DummyContent;
 
-public class MenuActivity extends AppCompatActivity implements PagesFragment.OnListFragmentInteractionListener, LiveTestFragment.OnFragmentInteractionListener {
+public class MenuActivity extends AppCompatActivity implements PagesFragment.OnFragmentInteractionListener, LiveTestFragment.OnFragmentInteractionListener {
     public static final String TAG = "Menu";
     private TextView mTextMessage;
 
@@ -32,7 +40,8 @@ public class MenuActivity extends AppCompatActivity implements PagesFragment.OnL
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     Log.d(TAG, "Selected home");
-                    selectedFragment = PagesFragment.newInstance(1);
+                    loadPages();
+                    selectedFragment = PagesFragment.newInstance("", "");
                     mTextMessage.setText(R.string.title_home);
                     break;
                 case R.id.navigation_dashboard:
@@ -52,6 +61,23 @@ public class MenuActivity extends AppCompatActivity implements PagesFragment.OnL
 
     };
 
+    private void loadPages() {
+        Log.d(TAG, "load pages");
+        PageGateway pageGateway = new PageGateway(getApplicationContext());
+        Log.d(TAG, PageGateway.token.get());
+        HashMap<String, String> hashMap = new HashMap<>();
+        pageGateway.getPages(hashMap, new Http.Callback() {
+            @Override
+            public void onSuccess(JSONObject response) throws JSONException {
+                Log.d(TAG, response.toString());
+            }
+
+            @Override
+            public void Onerror(VolleyError error) {
+                Log.d(TAG, error.getMessage());
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +88,8 @@ public class MenuActivity extends AppCompatActivity implements PagesFragment.OnL
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, PagesFragment.newInstance(2));
+        transaction.replace(R.id.content, PagesFragment.newInstance("", ""));
         transaction.commit();
-    }
-
-    @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        Log.d(TAG, item.toString());
     }
 
     @Override

@@ -23,18 +23,27 @@ import java.util.stream.Collector;
 
 public class Get extends Http {
 
+    public static final String TAG = "Http.Get";
+
     public Get(Context context) {
         super();
         requestQueue = HttpRequestQueue.getQueue(context);
     }
 
     public String convertMapToString(HashMap<String, String> params) {
-        return params.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).reduce("", String::concat);
+        StringBuilder paramsString = new StringBuilder();
+        paramsString.append("");
+        int i = 0;
+        for (String key: params.keySet()) {
+            i += 1;
+            paramsString.append(key + "=" + params.get(key) + (i == params.size() ? "" : "&"));
+        }
+        return paramsString.toString();
     }
 
     @Override
     public void request(String url, HashMap<String, String> params, Http.Callback callback) {
-        url = url + convertMapToString(params);
+        url = url + "?" + convertMapToString(params);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -55,12 +64,14 @@ public class Get extends Http {
                 return mHeaders;
             }
         };
+        requestQueue.add(jsonObjectRequest);
     }
 
     @Override
     public void request(String url, HashMap<String, String> params, Map<String, String> headers, Callback callback) {
         url = url + convertMapToString(params);
         mHeaders.putAll(headers);
+        Log.d(TAG, mHeaders.toString());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -81,5 +92,6 @@ public class Get extends Http {
                 return mHeaders;
             }
         };
+        requestQueue.add(jsonObjectRequest);
     }
 }

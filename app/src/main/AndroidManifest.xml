@@ -29,7 +29,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="co.fanstories.android.MainActivity"></activity>
+        <activity android:name="co.fanstories.android.MainActivity" />
         <activity
             android:name=".LiveVideoBroadcasterActivity"
             android:theme="@style/AppThemeDark" />
@@ -44,7 +44,11 @@
 
         <activity
             android:name="co.fanstories.android.MenuActivity"
-            android:label="@string/title_activity_menu"></activity>
+            android:label="@string/title_activity_menu" />
+        <activity
+            android:name="co.fanstories.android.HomeActivity"
+            android:label="@string/title_activity_home"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
