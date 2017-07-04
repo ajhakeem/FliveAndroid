@@ -21,10 +21,15 @@ public class Pages {
         public String name;
         public String id;
         public String pageId;
-        public Page(String id, String name, String pageId) {
+        public boolean verified;
+        public String blogUrl;
+
+        public Page(String id, String name, String pageId, String verified, String blogUrl) {
             this.name = name;
             this.id = id;
             this.pageId = pageId;
+            this.verified = (verified.equals("1") ? true : false);
+            this.blogUrl = blogUrl;
         }
 
         public Page(JSONObject jsonObject) {
@@ -32,6 +37,8 @@ public class Pages {
                 this.name = jsonObject.getString("name");
                 this.id = jsonObject.getString("id");
                 this.pageId = jsonObject.getString("page_id");
+                this.verified = jsonObject.getString("verified").equals("1") ? true : false;
+                this.blogUrl = jsonObject.getString("blog_url");
             } catch (JSONException e) {
                 e.printStackTrace();
             }

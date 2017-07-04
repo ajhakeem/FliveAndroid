@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#e2f7f7f7"
+    android:orientation="vertical"
     tools:context="co.fanstories.android.HomeActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -16,11 +18,20 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.NoActionBar.PopupOverlay" />
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/Theme.AppCompat.Light" />
 
     </android.support.design.widget.AppBarLayout>
-
     <include layout="@layout/content_home" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@mipmap/ic_logout"
+        android:tint="#FFF"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -28,12 +39,36 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@mipmap/ic_burger_menu"
+        android:tint="#FFF"/>
 
-    <ListView
+    <ProgressBar
+        android:id="@+id/pages_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swiperefreshPages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/page_list"
-        android:layout_marginTop="55dp"/>
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="60dp">
 
+        <ListView
+            android:id="@+id/page_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:paddingRight="15dp"
+            android:paddingLeft="15dp"
+            android:clipToPadding="false"
+            android:divider="#e2f7f7f7"
+            android:scrollbarStyle="outsideOverlay"
+            android:dividerHeight="15dp" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </android.support.design.widget.CoordinatorLayout>

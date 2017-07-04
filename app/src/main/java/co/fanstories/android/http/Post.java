@@ -69,9 +69,12 @@ public class Post extends Http {
                     e.printStackTrace();
                 }
             }
-        }, error -> {
-            Log.d("error", error.toString());
-            callback.Onerror(error);
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("error", error.toString());
+                callback.Onerror(error);
+            }
         }) {
             @Override
             public Map<String, String> getHeaders() {

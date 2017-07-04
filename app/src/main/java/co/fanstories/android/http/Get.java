@@ -44,7 +44,7 @@ public class Get extends Http {
     }
 
     @Override
-    public void request(String url, HashMap<String, String> params, Callback callback) {
+    public void request(String url, HashMap<String, String> params, final Callback callback) {
         url = url + "?" + convertMapToString(params);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -69,7 +69,7 @@ public class Get extends Http {
         requestQueue.add(jsonObjectRequest);
     }
 
-    public void request(String url, HashMap<String, String> params, Map<String, String> headers, Callback callback) {
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback) {
         url = url + convertMapToString(params);
         mHeaders.putAll(headers);
         Log.d(TAG, mHeaders.toString());
@@ -97,7 +97,7 @@ public class Get extends Http {
     }
 
     @Override
-    public void request(String url, HashMap<String, String> params, Map<String, String> headers, Callback callback, boolean returnsArray) {
+    public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback, boolean returnsArray) {
         url = url + convertMapToString(params);
         mHeaders.putAll(headers);
         Log.d(TAG, mHeaders.toString());
