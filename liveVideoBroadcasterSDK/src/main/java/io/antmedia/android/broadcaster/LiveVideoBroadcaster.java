@@ -280,7 +280,7 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
     public void setResolution(Resolution size) {
         Camera.Parameters parameters = sCameraProxy.getParameters();
         parameters.setPreviewSize(size.width, size.height);
-        parameters.setRecordingHint(true);
+        parameters.setRecordingHint(false);
         System.out.println("set resolution stop preview");
         sCameraProxy.stopPreview();
         sCameraProxy.setParameters(parameters);
@@ -454,15 +454,22 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         for (int i = 0; i < previewSizeList.size(); i++) {
             Camera.Size size = previewSizeList.get(i);
 
-            if ((size.width % 16 == 0) && (size.height % 16 == 0)) {
-                Resolution resolutionSize = new Resolution(size.width, size.height);
-                choosenPreviewsSizeList.add(resolutionSize);
-                int currentDiff = Math.abs(size.height - preferredHeight);
-                if (currentDiff < diff) {
-                    diff = currentDiff;
-                    choosenSize = resolutionSize;
-                }
+            Resolution resolutionSize = new Resolution(size.width, size.height);
+            choosenPreviewsSizeList.add(resolutionSize);
+            int currentDiff = Math.abs(size.height - preferredHeight);
+            if (currentDiff < diff) {
+                diff = currentDiff;
+                choosenSize = resolutionSize;
             }
+//            if ((size.width % 16 == 0) && (size.height % 16 == 0)) {
+//                Resolution resolutionSize = new Resolution(size.width, size.height);
+//                choosenPreviewsSizeList.add(resolutionSize);
+//                int currentDiff = Math.abs(size.height - preferredHeight);
+//                if (currentDiff < diff) {
+//                    diff = currentDiff;
+//                    choosenSize = resolutionSize;
+//                }
+//            }
         }
 
         int[] requestedFrameRate = new int[]{frameRate * 1000, frameRate * 1000};

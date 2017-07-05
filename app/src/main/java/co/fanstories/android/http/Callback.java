@@ -22,4 +22,12 @@ public abstract class Callback {
     public void Onerror(VolleyError error) {
 
     }
+
+    public void OnSuccess(boolean isSuccess) {
+
+    }
+
+    public void onError(boolean isError) {
+
+    }
 }

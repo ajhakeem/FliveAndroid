@@ -29,7 +29,7 @@ public class AuthGateway {
     final Post httpPostRequest;
     Context context;
 
-    AuthGateway (Context context) {
+    public AuthGateway (Context context) {
         httpPostRequest = new Post(context);
         this.context = context;
     }
@@ -49,10 +49,14 @@ public class AuthGateway {
         });
     }
 
-    public boolean logout(final Callback callback) {
-        Token token = new Token(context.getSharedPreferences("FilvePref", MODE_PRIVATE));
-        token.remove();
-        return true;
+    public void logout(final Callback callback) {
+        try {
+            Token token = new Token(context.getSharedPreferences("FilvePref", MODE_PRIVATE));
+            token.remove();
+            callback.OnSuccess(true);
+        } catch (Exception e) {
+            callback.onError(true);
+        }
     }
 
 }

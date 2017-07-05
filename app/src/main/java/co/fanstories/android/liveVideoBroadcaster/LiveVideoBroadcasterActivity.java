@@ -29,24 +29,27 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import co.fanstories.android.HomeActivity;
 import io.antmedia.android.broadcaster.ILiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.LiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.utils.Resolution;
 
-import static co.fanstories.android.liveVideoBroadcaster.URL.RTMP_BASE_URL;
+import static co.fanstories.android.liveVideoBroadcaster.StreamBaseURL.RTMP_BASE_URL;
 import co.fanstories.android.R;
 
 public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
 
+    private String streamKey;
+
     private ViewGroup mRootView;
     boolean mIsRecording = false;
-    private EditText mStreamNameEditText;
     private Timer mTimer;
     private long mElapsedTime;
     public TimerHandler mTimerHandler;
@@ -93,8 +96,11 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_live_video_broadcaster);
 
+        Intent liveIntent = getIntent();
+        streamKey = liveIntent.getStringExtra("streamKey");
+        Toast.makeText(this, streamKey, Toast.LENGTH_SHORT).show();
+
         mTimerHandler = new TimerHandler();
-        mStreamNameEditText = (EditText) findViewById(R.id.stream_name_edit_text);
 
         mRootView = (ViewGroup)findViewById(R.id.root_layout);
         mSettingsButton = (ImageButton)findViewById(R.id.settings_button);
@@ -226,7 +232,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         {
             if (mLiveVideoBroadcaster != null) {
                 if (!mLiveVideoBroadcaster.isConnected()) {
-                    String streamName = mStreamNameEditText.getText().toString();
+                    String streamName = streamKey;
 
                     new AsyncTask<String, String, Boolean>() {
                         ContentLoadingProgressBar
@@ -287,7 +293,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
             stopTimer();
             mLiveVideoBroadcaster.stopBroadcasting();
         }
-
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        startActivity(intent);
         mIsRecording = false;
     }
 
@@ -336,12 +343,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                     mStreamLiveStatus.setText(getString(R.string.live_indicator) + " - " + getDurationString((int) mElapsedTime));
                     break;
                 case CONNECTION_LOST:
+                    Toast.makeText(getApplicationContext(), "Connection to server lost", Toast.LENGTH_SHORT).show();
                     triggerStopRecording();
-                    new AlertDialog.Builder(LiveVideoBroadcasterActivity.this)
-                            .setMessage(R.string.broadcast_connection_lost)
-                            .setPositiveButton(android.R.string.yes, null)
-                            .show();
-
                     break;
             }
         }

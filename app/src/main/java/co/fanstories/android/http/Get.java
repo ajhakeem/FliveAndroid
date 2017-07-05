@@ -70,7 +70,7 @@ public class Get extends Http {
     }
 
     public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback) {
-        url = url + convertMapToString(params);
+        url = url  + "?" +  convertMapToString(params);
         mHeaders.putAll(headers);
         Log.d(TAG, mHeaders.toString());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -98,7 +98,7 @@ public class Get extends Http {
 
     @Override
     public void request(String url, HashMap<String, String> params, Map<String, String> headers, final Callback callback, boolean returnsArray) {
-        url = url + convertMapToString(params);
+        url = url + "?" + convertMapToString(params);
         mHeaders.putAll(headers);
         Log.d(TAG, mHeaders.toString());
         JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {

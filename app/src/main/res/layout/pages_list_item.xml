@@ -18,18 +18,15 @@
         android:textColor="#252424"
         android:textSize="20sp" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/page_list_item_blog_url"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_margin="15dp">
+        android:layout_margin="15dp"
+        android:autoLink="web"
+        
+        android:textColorLink="#1E8EE5"/>
 
-        <TextView
-            android:id="@+id/page_list_item_blog_url"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="#1E8EE5"/>
-    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"

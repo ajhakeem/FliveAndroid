@@ -152,6 +152,8 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         mFullScreen = new FullFrameRect(
                 new Texture2dProgram(mEffectType));
 
+//        mFullScreen.calculateViewMatrix();
+
         mVideoEncoder.setEffect(mEffectType);
 
         mTextureId = mFullScreen.createTextureObject();
@@ -172,6 +174,8 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 unused, int width, int height) {
         Log.d(TAG, "onSurfaceChanged " + width + "x" + height);
         GLES20.glViewport(0, 0, width, height);
+//        float ratio = (float) width / height;
+//        mFullScreen.calculateProjectionMatrix(ratio);
     }
 
     @Override

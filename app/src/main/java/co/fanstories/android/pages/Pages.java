@@ -1,5 +1,6 @@
 package co.fanstories.android.pages;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -10,6 +11,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by mohsal on 7/3/17.
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 
 public class Pages {
     public static final String TAG = "Pages";
+
     public static class Page {
         public String name;
         public String id;
@@ -39,6 +42,7 @@ public class Pages {
                 this.pageId = jsonObject.getString("page_id");
                 this.verified = jsonObject.getString("verified").equals("1") ? true : false;
                 this.blogUrl = jsonObject.getString("blog_url");
+                Log.d(TAG, name + "" + String.valueOf(verified));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

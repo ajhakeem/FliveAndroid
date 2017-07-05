@@ -73,7 +73,7 @@ import java.net.CookiePolicy;
 
 import co.fanstories.android.R;
 
-import static co.fanstories.android.liveVideoBroadcaster.URL.RTMP_BASE_URL;
+import static co.fanstories.android.liveVideoBroadcaster.StreamBaseURL.RTMP_BASE_URL;
 
 /**
  * An activity that plays media using {@link SimpleExoPlayer}.
@@ -467,7 +467,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
   public void play(View view) {
     String URL = RTMP_BASE_URL + videoNameEditText.getText().toString();
-    //String URL = "http://192.168.1.34:5080/vod/streams/test_adaptive.m3u8";
+    //String StreamBaseURL = "http://192.168.1.34:5080/vod/streams/test_adaptive.m3u8";
     initializePlayer(URL);
     videoStartControlLayout.setVisibility(View.GONE);
   }

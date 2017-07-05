@@ -78,6 +78,7 @@ public class Texture2dProgram {
             "    gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
             "}\n";
 
+
     // Fragment shader that converts color to black & white with a simple transformation.
     private static final String FRAGMENT_SHADER_EXT_BW =
             "#extension GL_OES_EGL_image_external : require\n" +

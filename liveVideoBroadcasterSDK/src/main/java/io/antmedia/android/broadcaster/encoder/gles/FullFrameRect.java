@@ -16,6 +16,8 @@
 
 package io.antmedia.android.broadcaster.encoder.gles;
 
+import android.opengl.Matrix;
+
 /**
  * This class essentially represents a viewport-sized sprite that will be rendered with
  * a texture, usually from an external source like the camera or video decoder.
@@ -23,6 +25,9 @@ package io.antmedia.android.broadcaster.encoder.gles;
 public class FullFrameRect {
     private final Drawable2d mRectDrawable = new Drawable2d(Drawable2d.Prefab.FULL_RECTANGLE);
     private Texture2dProgram mProgram;
+    private static float[] mVMatrix = new float[16];
+    private static float[] mProjMatrix = new float[16];
+    private static float[] mMVPMatrix = new float[16];
 
     /**
      * Prepares the object.
@@ -75,11 +80,21 @@ public class FullFrameRect {
         return mProgram.createTextureObject();
     }
 
+    public void calculateViewMatrix() {
+        Matrix.setLookAtM(mVMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+    }
+
+    public void calculateProjectionMatrix(float ratio) {
+        Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+    }
+
     /**
      * Draws a viewport-filling rect, texturing it with the specified texture object.
      */
     public void drawFrame(int textureId, float[] texMatrix) {
         // Use the identity matrix for MVP so our 2x2 FULL_RECTANGLE covers the viewport.
+
+//        Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
         mProgram.draw(GlUtil.IDENTITY_MATRIX, mRectDrawable.getVertexArray(), 0,
                 mRectDrawable.getVertexCount(), mRectDrawable.getCoordsPerVertex(),
                 mRectDrawable.getVertexStride(),

@@ -164,6 +164,11 @@ public class LoginActivity extends AppCompatActivity {
         return password.length() > 4;
     }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
     /**
      * Shows the progress UI and hides the login form.
      */

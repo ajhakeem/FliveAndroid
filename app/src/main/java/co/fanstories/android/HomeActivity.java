@@ -4,9 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.BoolRes;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -26,11 +29,16 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import co.fanstories.android.authentication.AuthGateway;
+import co.fanstories.android.authentication.LoginActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.pages.PageAdapter;
 import co.fanstories.android.pages.PageGateway;
@@ -42,6 +50,7 @@ public class HomeActivity extends AppCompatActivity {
     PageAdapter adapter;
     ArrayList<Pages.Page> mPages;
 
+    private CoordinatorLayout coordinatorLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton fab, fabLogout;
     ListView pagesListView;
@@ -55,6 +64,8 @@ public class HomeActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.home_view);
 
         final LayoutInflater inflater =
                 (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -78,6 +89,24 @@ public class HomeActivity extends AppCompatActivity {
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLogout = (FloatingActionButton) findViewById(R.id.fab_logout);
+        fabLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                (new AuthGateway(getApplicationContext())).logout(new Callback() {
+                    @Override
+                    public void OnSuccess(boolean isSuccess) {
+                        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(i);
+                        Toast.makeText(getApplicationContext(), "You've been logged out", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(boolean isError) {
+                        Snackbar.make(coordinatorLayout, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
         isFabOpen = false;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,13 +197,19 @@ public class HomeActivity extends AppCompatActivity {
         showProgress(true);
         PageGateway pageGateway = new PageGateway(getApplicationContext());
         HashMap<String, String> hashMap = new HashMap<>();
-        Toast.makeText(getApplicationContext(), "Loading pages..", Toast.LENGTH_SHORT).show();
         pageGateway.getPages(hashMap, new Callback() {
             @Override
             public void onSuccess(JSONArray response) throws JSONException {
-                Toast.makeText(getApplicationContext(), "Loaded pages..", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, response.toString());
                 mPages = Pages.Page.fromJson(response);
+
+                //Sort the list based on their verified status.
+                Collections.sort(mPages, new Comparator<Pages.Page>() {
+                    @Override
+                    public int compare(Pages.Page o1, Pages.Page o2) {
+                        return (o1.verified ^ o2.verified) ? ((o1.verified ^ true) ? 1 : -1) : 0;
+                    }
+                });
                 initialize();
             }
 
