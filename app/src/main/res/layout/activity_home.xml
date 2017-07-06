@@ -92,6 +92,24 @@
             android:visibility="gone"
             android:text="TextView" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/page_none"
+            android:textColor="#000"
+            android:visibility="gone"
+            android:gravity="center"
+            android:text="@string/fb_no_page"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:visibility="gone"
+            android:id="@+id/fb_none"
+            android:layout_gravity="center"
+            android:text="@string/fb_no_account"/>
+
         <Button
             android:id="@+id/button_reload"
             android:layout_width="wrap_content"

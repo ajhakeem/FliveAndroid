@@ -65,6 +65,8 @@ public class HomeActivity extends AppCompatActivity {
     ListView pagesListView;
     ProgressBar progressBar;
     TextView errorMessageView;
+    TextView noPagesAvailableView;
+    TextView fbNotLinkedView;
     Button tryAgainButton;
 
     private boolean isFabOpen;
@@ -82,6 +84,8 @@ public class HomeActivity extends AppCompatActivity {
         final LayoutInflater inflater =
                 (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View headerFooter = inflater.inflate(R.layout.header_footer, null);
+
+        noPagesAvailableView = (TextView) findViewById(R.id.page_none);
 
         errorMessageView = (TextView) findViewById(R.id.error_message);
 
@@ -134,18 +138,15 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!isFabOpen) {
+                    fab.setImageResource(R.drawable.ic_close_black_24dp);
                     showFabMenu();
                 } else {
+                    fab.setImageResource(R.mipmap.ic_burger_menu);
                     hideFabMenu();
                 }
             }
         });
         loadPages();
-    }
-
-    private void showErrorMessage(final boolean show) {
-        errorMessageView.setVisibility(show ? View.VISIBLE : View.GONE);
-        tryAgainButton.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void showFabMenu() {
@@ -185,10 +186,6 @@ public class HomeActivity extends AppCompatActivity {
         showListView(true);
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
@@ -197,26 +194,42 @@ public class HomeActivity extends AppCompatActivity {
         pagesListView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    private void showNoPagesAvailableMessage(final boolean show) {
+        noPagesAvailableView.setVisibility(show ? View.VISIBLE : View.GONE);
+        tryAgainButton.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void showErrorMessage(final boolean show) {
+        errorMessageView.setVisibility(show ? View.VISIBLE : View.GONE);
+        tryAgainButton.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
     private void loadPages() {
         showListView(false);
         showProgress(true);
         showErrorMessage(false);
+        showNoPagesAvailableMessage(false);
+
         PageGateway pageGateway = new PageGateway(getApplicationContext());
         HashMap<String, String> hashMap = new HashMap<>();
         pageGateway.getPages(hashMap, new Callback() {
             @Override
             public void onSuccess(JSONArray response) throws JSONException {
                 Log.d(TAG, response.toString());
-                mPages = Pages.Page.fromJson(response);
-
-                //Sort the list based on their verified status.
-                Collections.sort(mPages, new Comparator<Pages.Page>() {
-                    @Override
-                    public int compare(Pages.Page o1, Pages.Page o2) {
-                        return (o1.verified ^ o2.verified) ? ((o1.verified ^ true) ? 1 : -1) : 0;
-                    }
-                });
-                initialize();
+                if(response.length() > 0) {
+                    mPages = Pages.Page.fromJson(response);
+                    //Sort the list based on their verified status.
+                    Collections.sort(mPages, new Comparator<Pages.Page>() {
+                        @Override
+                        public int compare(Pages.Page o1, Pages.Page o2) {
+                            return (o1.verified ^ o2.verified) ? ((o1.verified ^ true) ? 1 : -1) : 0;
+                        }
+                    });
+                    initialize();
+                } else {
+                    showProgress(false);
+                    showNoPagesAvailableMessage(true);
+                }
             }
 
             @Override

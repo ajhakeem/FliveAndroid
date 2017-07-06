@@ -77,9 +77,10 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_live">Live</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="live_broadcaster_test">Live Broadcaster Test</string>
     <string name="title_activity_home">Pages</string>
+    <string name="fb_no_page">Looks like you do not have any Facebook pages. Make sure you have editing privileges in pages you manage.</string>
+    <string name="fb_no_account">You have not linked your Facebook account yet.</string>
 
 </resources>
