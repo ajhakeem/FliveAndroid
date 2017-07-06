@@ -23,6 +23,7 @@
             app:popupTheme="@style/Theme.AppCompat.Light" />
 
     </android.support.design.widget.AppBarLayout>
+
     <include layout="@layout/content_home" />
 
     <android.support.design.widget.FloatingActionButton
@@ -72,4 +73,34 @@
             android:dividerHeight="15dp" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/erro_message_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="15dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#000"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:text="TextView" />
+
+        <Button
+            android:id="@+id/button_reload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@color/colorPrimary"
+            android:onClick="Onclick"
+            android:text="Try again"
+            android:textColor="#FFF"
+            android:visibility="visible" />
+    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

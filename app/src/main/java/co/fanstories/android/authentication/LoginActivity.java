@@ -22,6 +22,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 
 import org.json.JSONException;
@@ -47,6 +53,8 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -267,8 +275,24 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void Onerror(VolleyError error) {
-                    Toast.makeText(getApplicationContext(), "We messed up. Try again later", Toast.LENGTH_LONG).show();
                     mAuthTask = null;
+                    Log.d(TAG, error.getMessage());
+                    String message = null;
+                    if (error instanceof NetworkError) {
+                        message = "Cannot connect to Internet...Please check your connection!";
+                    } else if (error instanceof ServerError) {
+                        message = "The server could not be found. Please try again after some time!!";
+                    } else if (error instanceof AuthFailureError) {
+                        message = "Cannot connect to Internet...Please check your connection!";
+                    } else if (error instanceof ParseError) {
+                        message = "Parsing error! Please try again after some time!!";
+                    } else if (error instanceof NoConnectionError) {
+                        message = "Cannot connect to Internet...Please check your connection!";
+                    } else if (error instanceof TimeoutError) {
+                        message = "Connection TimeOut! Please check your internet connection.";
+                    }
+                    showProgress(false);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                     showProgress(false);
                 }
             });

@@ -19,17 +19,26 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +64,9 @@ public class HomeActivity extends AppCompatActivity {
     FloatingActionButton fab, fabLogout;
     ListView pagesListView;
     ProgressBar progressBar;
+    TextView errorMessageView;
+    Button tryAgainButton;
+
     private boolean isFabOpen;
 
     @Override
@@ -70,6 +82,16 @@ public class HomeActivity extends AppCompatActivity {
         final LayoutInflater inflater =
                 (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View headerFooter = inflater.inflate(R.layout.header_footer, null);
+
+        errorMessageView = (TextView) findViewById(R.id.error_message);
+
+        tryAgainButton = (Button) findViewById(R.id.button_reload);
+        tryAgainButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadPages();
+            }
+        });
 
         pagesListView = (ListView) findViewById(R.id.page_list);
         pagesListView.addFooterView(headerFooter);
@@ -111,7 +133,7 @@ public class HomeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isFabOpen) {
+                if (!isFabOpen) {
                     showFabMenu();
                 } else {
                     hideFabMenu();
@@ -119,6 +141,11 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         loadPages();
+    }
+
+    private void showErrorMessage(final boolean show) {
+        errorMessageView.setVisibility(show ? View.VISIBLE : View.GONE);
+        tryAgainButton.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void showFabMenu() {
@@ -155,6 +182,7 @@ public class HomeActivity extends AppCompatActivity {
         swipeRefreshLayout.setRefreshing(false);
         pagesListView.setAdapter(adapter);
         showProgress(false);
+        showListView(true);
     }
 
     /**
@@ -162,39 +190,17 @@ public class HomeActivity extends AppCompatActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 
-            pagesListView.setVisibility(show ? View.GONE : View.VISIBLE);
-            pagesListView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    pagesListView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressBar.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            pagesListView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+    private void showListView(final boolean show) {
+        pagesListView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void loadPages() {
+        showListView(false);
         showProgress(true);
+        showErrorMessage(false);
         PageGateway pageGateway = new PageGateway(getApplicationContext());
         HashMap<String, String> hashMap = new HashMap<>();
         pageGateway.getPages(hashMap, new Callback() {
@@ -216,6 +222,24 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void Onerror(VolleyError error) {
                 Log.d(TAG, error.getMessage());
+                String message = null;
+                if (error instanceof NetworkError) {
+                    message = "Cannot connect to Internet...Please check your connection!";
+                } else if (error instanceof ServerError) {
+                    message = "The server could not be found. Please try again after some time!!";
+                } else if (error instanceof AuthFailureError) {
+                    message = "Cannot connect to Internet...Please check your connection!";
+                } else if (error instanceof ParseError) {
+                    message = "Parsing error! Please try again after some time!!";
+                } else if (error instanceof NoConnectionError) {
+                    message = "Cannot connect to Internet...Please check your connection!";
+                } else if (error instanceof TimeoutError) {
+                    message = "Connection TimeOut! Please check your internet connection.";
+                }
+                errorMessageView.setText(message);
+                showProgress(false);
+                swipeRefreshLayout.setRefreshing(false);
+                showErrorMessage(true);
                 Toast.makeText(getApplicationContext(), "Could not load pages.", Toast.LENGTH_SHORT).show();
             }
         });
