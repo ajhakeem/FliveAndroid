@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -29,8 +30,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.VolleyError;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +46,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import co.fanstories.android.HomeActivity;
+import co.fanstories.android.http.Callback;
+import co.fanstories.android.live.LiveGateway;
 import io.antmedia.android.broadcaster.ILiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.LiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.utils.Resolution;
@@ -66,8 +76,13 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     private Button mBroadcastControlButton;
     private boolean isConnecting = false;
 
+    private LiveGateway liveGateway;
+
+    private LinearLayout mLiveFBShareLayout;
     private EditText mLiveFBMessageText;
     private Button mLiveFBMessageSendButton;
+    private boolean isLiveFBMessageSendButtonEnabled = false;
+    private ProgressBar mLiveSendProgressBar;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -132,18 +147,60 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                 share();
             }
         });
+
+        mLiveSendProgressBar = (ProgressBar) findViewById(R.id.live_progress_bar);
+
+        liveGateway = new LiveGateway(getApplicationContext());
+    }
+
+    public void disableFBShare() {
+        mLiveFBMessageSendButton.setBackground(getResources().getDrawable(R.drawable.live_share_button_disabled));
+        mLiveFBMessageSendButton.setEnabled(false);
+        mLiveFBMessageText.setEnabled(false);
     }
 
     public void share() {
+        mLiveSendProgressBar.setVisibility(View.VISIBLE);
+        mLiveFBMessageSendButton.setVisibility(View.GONE);
         final String message = String.valueOf(mLiveFBMessageText.getText());
-        if(message.length() > 0) {
+        if(!isLiveFBMessageSendButtonEnabled) {
+            Snackbar.make(mRootView, "You can post once you are live", Snackbar.LENGTH_LONG).show();
+            mLiveSendProgressBar.setVisibility(View.GONE);
+            mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
+        }
+        else if(message.length() == 0 && isLiveFBMessageSendButtonEnabled) {
+            mLiveFBMessageText.setError("Message cannot be empty");
+            mLiveSendProgressBar.setVisibility(View.GONE);
+            mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
+        } else {
             HashMap<String, String> params = new HashMap<>();
             params.put("page_id", pageId);
-            params.put("blog_url", blogUrl);
-            params.put("text", message);
-            Log.d(TAG, params.toString());
-        } else {
-            mLiveFBMessageText.setError("Message cannot be empty");
+            params.put("link", blogUrl);
+            params.put("message", message);
+            liveGateway.shareLink(params, new Callback() {
+                @Override
+                public void onSuccess(JSONObject response) throws JSONException {
+                    Log.d(TAG, response.toString());
+                    if(response.get("status").equals("success")) {
+                        mLiveSendProgressBar.setVisibility(View.GONE);
+                        mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
+                        disableFBShare();
+                        Snackbar.make(mRootView, "Successfully shared!", Snackbar.LENGTH_LONG).show();
+                    } else {
+                        mLiveSendProgressBar.setVisibility(View.GONE);
+                        mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
+                        Snackbar.make(mRootView, "Could not share now!", Snackbar.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void Onerror(VolleyError error) {
+                    error.printStackTrace();
+                    mLiveSendProgressBar.setVisibility(View.GONE);
+                    mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
+                    Snackbar.make(mRootView, "Uh-oh. We messed up!", Snackbar.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -259,61 +316,63 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     }
 
     public void toggleBroadcasting(View v) {
-        if (!mIsRecording && !isConnecting)
-        {
-            isConnecting = true;
-            mBroadcastControlButton.setEnabled(false);
-            mBroadcastControlButton.setText("Connecting..");
-            if (mLiveVideoBroadcaster != null) {
-                if (!mLiveVideoBroadcaster.isConnected()) {
-                    String streamName = streamKey;
+        if(!isConnecting) {
+            if (!mIsRecording)
+            {
+                isConnecting = true;
+                isLiveFBMessageSendButtonEnabled = false;
+                mBroadcastControlButton.setText("Connecting..");
+                if (mLiveVideoBroadcaster != null) {
+                    if (!mLiveVideoBroadcaster.isConnected()) {
+                        String streamName = streamKey;
 
-                    new AsyncTask<String, String, Boolean>() {
-                        ContentLoadingProgressBar
-                                progressBar;
-                        @Override
-                        protected void onPreExecute() {
-                            progressBar = new ContentLoadingProgressBar(LiveVideoBroadcasterActivity.this);
-                            progressBar.show();
-                        }
-
-                        @Override
-                        protected Boolean doInBackground(String... url) {
-                            return mLiveVideoBroadcaster.startBroadcasting(url[0]);
-
-                        }
-
-                        @Override
-                        protected void onPostExecute(Boolean result) {
-                            progressBar.hide();
-                            mIsRecording = result;
-                            if (result) {
-                                mStreamLiveStatus.setVisibility(View.VISIBLE);
-
-                                mBroadcastControlButton.setEnabled(true);
-
-                                isConnecting = false;
-                                mBroadcastControlButton.setText(R.string.stop_broadcasting);
-                                mSettingsButton.setVisibility(View.GONE);
-                                startTimer();//start the recording duration
+                        new AsyncTask<String, String, Boolean>() {
+                            ContentLoadingProgressBar
+                                    progressBar;
+                            @Override
+                            protected void onPreExecute() {
+                                progressBar = new ContentLoadingProgressBar(LiveVideoBroadcasterActivity.this);
+                                progressBar.show();
                             }
-                            else {
-                                triggerStopRecording();
+
+                            @Override
+                            protected Boolean doInBackground(String... url) {
+                                return mLiveVideoBroadcaster.startBroadcasting(url[0]);
+
                             }
-                        }
-                    }.execute(RTMP_BASE_URL + streamName);
+
+                            @Override
+                            protected void onPostExecute(Boolean result) {
+                                progressBar.hide();
+                                mIsRecording = result;
+                                if (result) {
+                                    mStreamLiveStatus.setVisibility(View.VISIBLE);
+
+                                    isLiveFBMessageSendButtonEnabled = true;
+
+                                    isConnecting = false;
+                                    mBroadcastControlButton.setText(R.string.stop_broadcasting);
+                                    mSettingsButton.setVisibility(View.GONE);
+                                    startTimer();//start the recording duration
+                                }
+                                else {
+                                    triggerStopRecording();
+                                }
+                            }
+                        }.execute(RTMP_BASE_URL + streamName);
+                    }
+                    else {
+                        Snackbar.make(mRootView, R.string.streaming_not_finished, Snackbar.LENGTH_LONG).show();
+                    }
                 }
                 else {
-                    Snackbar.make(mRootView, R.string.streaming_not_finished, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mRootView, R.string.oopps_shouldnt_happen, Snackbar.LENGTH_LONG).show();
                 }
             }
-            else {
-                Snackbar.make(mRootView, R.string.oopps_shouldnt_happen, Snackbar.LENGTH_LONG).show();
+            else
+            {
+                triggerStopRecording();
             }
-        }
-        else
-        {
-            triggerStopRecording();
         }
     }
 
