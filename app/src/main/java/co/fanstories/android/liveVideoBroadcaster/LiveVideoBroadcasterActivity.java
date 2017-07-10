@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,9 +46,11 @@ import static co.fanstories.android.liveVideoBroadcaster.StreamBaseURL.RTMP_BASE
 import co.fanstories.android.R;
 
 public class LiveVideoBroadcasterActivity extends AppCompatActivity {
-
+    private static final String TAG = LiveVideoBroadcasterActivity.class.getSimpleName();
 
     private String streamKey;
+    private String blogUrl;
+    private String pageId;
 
     private ViewGroup mRootView;
     boolean mIsRecording = false;
@@ -60,6 +64,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     private GLSurfaceView mGLView;
     private ILiveVideoBroadcaster mLiveVideoBroadcaster;
     private Button mBroadcastControlButton;
+    private boolean isConnecting = false;
+
+    private EditText mLiveFBMessageText;
+    private Button mLiveFBMessageSendButton;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -79,7 +87,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +105,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
         Intent liveIntent = getIntent();
         streamKey = liveIntent.getStringExtra("streamKey");
+        blogUrl = liveIntent.getStringExtra("blogUrl");
+        pageId = liveIntent.getStringExtra("pageId");
         Toast.makeText(this, streamKey, Toast.LENGTH_SHORT).show();
 
         mTimerHandler = new TimerHandler();
@@ -113,6 +122,28 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         mGLView = (GLSurfaceView) findViewById(R.id.cameraPreview_surfaceView);
         if (mGLView != null) {
             mGLView.setEGLContextClientVersion(2);     // select GLES 2.0
+        }
+
+        mLiveFBMessageText = (EditText) findViewById(R.id.live_fb_share_link_message);
+        mLiveFBMessageSendButton = (Button)  findViewById(R.id.live_fb_message_send_button);
+        mLiveFBMessageSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                share();
+            }
+        });
+    }
+
+    public void share() {
+        final String message = String.valueOf(mLiveFBMessageText.getText());
+        if(message.length() > 0) {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("page_id", pageId);
+            params.put("blog_url", blogUrl);
+            params.put("text", message);
+            Log.d(TAG, params.toString());
+        } else {
+            mLiveFBMessageText.setError("Message cannot be empty");
         }
     }
 
@@ -228,8 +259,11 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     }
 
     public void toggleBroadcasting(View v) {
-        if (!mIsRecording)
+        if (!mIsRecording && !isConnecting)
         {
+            isConnecting = true;
+            mBroadcastControlButton.setEnabled(false);
+            mBroadcastControlButton.setText("Connecting..");
             if (mLiveVideoBroadcaster != null) {
                 if (!mLiveVideoBroadcaster.isConnected()) {
                     String streamName = streamKey;
@@ -256,6 +290,9 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                             if (result) {
                                 mStreamLiveStatus.setVisibility(View.VISIBLE);
 
+                                mBroadcastControlButton.setEnabled(true);
+
+                                isConnecting = false;
                                 mBroadcastControlButton.setText(R.string.stop_broadcasting);
                                 mSettingsButton.setVisibility(View.GONE);
                                 startTimer();//start the recording duration
@@ -278,7 +315,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         {
             triggerStopRecording();
         }
-
     }
 
 

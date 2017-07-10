@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.AudioFormat;
@@ -24,7 +25,9 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 
@@ -428,6 +431,48 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         }
     }
 
+    static Size chooseBigEnoughSize(Size[] choices, int width, int height) {
+        // Collect the supported resolutions that are at least as big as the preview Surface
+        List<Size> bigEnough = new ArrayList<Size>();
+        for (Size option : choices) {
+            if (option.getWidth() >= width && option.getHeight() >= height) {
+                bigEnough.add(option);
+            }
+        }
+        // Pick the smallest of those, assuming we found any
+        if (bigEnough.size() > 0) {
+            return Collections.min(bigEnough, new CompareSizesByArea());
+        } else {
+            Log.e(TAG, "Couldn't find any suitable preview size");
+            return choices[0];
+        }
+    }
+
+    static class CompareSizesByArea implements Comparator<Size> {
+        @Override
+        public int compare(Size lhs, Size rhs) {
+            // We cast here to ensure the multiplications won't overflow
+            return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
+                    (long) rhs.getWidth() * rhs.getHeight());
+        }
+    }
+
+    private Resolution calculateResolution(final int MODE, int width, int height) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float ratio;
+        int newHeight, newWidth;
+        if(MODE == Configuration.ORIENTATION_PORTRAIT) {
+            ratio = ((float)metrics.heightPixels / (float)metrics.widthPixels);
+            newWidth = width;
+            newHeight = (int)(newWidth * ratio);
+            return new Resolution(newWidth, newHeight);
+        } else {
+            ratio = ((float)metrics.widthPixels / (float)metrics.heightPixels);
+            newHeight = height;
+            newWidth = (int)(newHeight * ratio);
+            return new Resolution(newHeight, newWidth);
+        }
+    }
 
     private int setCameraParameters(Camera.Parameters parameters) {
 
@@ -447,6 +492,19 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
 
         int preferredHeight = 720;
 
+        /*
+        Resolution initialResolution;
+        if(context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            final int INITIAL_WIDTH = 360;
+            final int INITIAL_HEIGHT = 480;
+            initialResolution = calculateResolution(Configuration.ORIENTATION_PORTRAIT, INITIAL_WIDTH, INITIAL_HEIGHT);
+        } else {
+            final int INITIAL_WIDTH = 480;
+            final int INITIAL_HEIGHT = 360;
+            initialResolution = calculateResolution(Configuration.ORIENTATION_LANDSCAPE, INITIAL_WIDTH, INITIAL_HEIGHT);
+        }
+        */
+
         choosenPreviewsSizeList = new ArrayList<>();
 
         int diff = Integer.MAX_VALUE;
@@ -461,15 +519,17 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
                 diff = currentDiff;
                 choosenSize = resolutionSize;
             }
-//            if ((size.width % 16 == 0) && (size.height % 16 == 0)) {
-//                Resolution resolutionSize = new Resolution(size.width, size.height);
-//                choosenPreviewsSizeList.add(resolutionSize);
-//                int currentDiff = Math.abs(size.height - preferredHeight);
-//                if (currentDiff < diff) {
-//                    diff = currentDiff;
-//                    choosenSize = resolutionSize;
-//                }
-//            }
+            /*
+            if ((size.width % 16 == 0) && (size.height % 16 == 0)) {
+                Resolution resolutionSize = new Resolution(size.width, size.height);
+                choosenPreviewsSizeList.add(resolutionSize);
+                int currentDiff = Math.abs(size.height - preferredHeight);
+                if (currentDiff < diff) {
+                    diff = currentDiff;
+                    choosenSize = resolutionSize;
+                }
+            }
+            */
         }
 
         int[] requestedFrameRate = new int[]{frameRate * 1000, frameRate * 1000};

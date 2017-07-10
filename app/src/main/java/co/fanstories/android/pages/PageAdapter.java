@@ -87,6 +87,8 @@ public class PageAdapter extends ArrayAdapter {
                             Map<String, Object> res = JSONUtils.jsonToMap(response);
                             Intent intent = new Intent(getContext(), LiveVideoBroadcasterActivity.class);
                             intent.putExtra("streamKey", ((Map)res.get("data")).get("stream_key").toString());
+                            intent.putExtra("blogUrl", "http://" + page.blogUrl);
+                            intent.putExtra("pageId", page.pageId);
                             getContext().startActivity(intent);
                         }
 
