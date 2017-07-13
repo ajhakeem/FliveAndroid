@@ -5,5 +5,5 @@ package co.fanstories.android.liveVideoBroadcaster;
  */
 
 public class StreamBaseURL {
-    public static final String RTMP_BASE_URL = "rtmp://54.201.16.95/dash/";
+    public static final String RTMP_BASE_URL = "rtmp://54.201.16.95/live/";
 }
