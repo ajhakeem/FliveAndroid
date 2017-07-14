@@ -316,9 +316,12 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     }
 
     public void toggleBroadcasting(View v) {
+        Log.d(TAG, "Starting..");
         if(!isConnecting) {
+            Log.d(TAG, "Not connecting....");
             if (!mIsRecording)
             {
+                Log.d(TAG, "Not recording..");
                 isConnecting = true;
                 isLiveFBMessageSendButtonEnabled = false;
                 mBroadcastControlButton.setText("Connecting..");
@@ -345,6 +348,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                             protected void onPostExecute(Boolean result) {
                                 progressBar.hide();
                                 mIsRecording = result;
+                                Log.d(TAG, "Result: " + String.valueOf(result));
                                 if (result) {
                                     mStreamLiveStatus.setVisibility(View.VISIBLE);
 
@@ -356,6 +360,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                                     startTimer();//start the recording duration
                                 }
                                 else {
+                                    Toast.makeText(getApplicationContext(), "Could not connect to server", Toast.LENGTH_LONG);
                                     triggerStopRecording();
                                 }
                             }
@@ -373,6 +378,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
             {
                 triggerStopRecording();
             }
+        } else {
+            Log.d(TAG, "Connecting already..");
         }
     }
 
