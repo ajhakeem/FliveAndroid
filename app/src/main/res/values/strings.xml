@@ -76,11 +76,15 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_live">Live</string>
+    <string name="terms"><a href="https://app.fanstories.co/#/terms">Terms Of Use</a></string>
+    <string name="privacy"><a href="https://app.fanstories.co/#/privacy">Privacy Policy</a></string>
+    <string name="r_18">I\'m above 18 years old</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="live_broadcaster_test">Live Broadcaster Test</string>
     <string name="title_activity_home">Pages</string>
     <string name="fb_no_page">Looks like you do not have any Facebook pages. Make sure you have editing privileges in pages you manage.</string>
     <string name="fb_no_account">You have not linked your Facebook account yet.</string>
+    <string name="login_logo_description">Fan Stories Logo</string>
 
 </resources>
