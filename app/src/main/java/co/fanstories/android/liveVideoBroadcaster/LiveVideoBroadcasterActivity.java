@@ -37,9 +37,11 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 
+import org.java_websocket.client.WebSocketClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
@@ -83,6 +85,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     private Button mLiveFBMessageSendButton;
     private boolean isLiveFBMessageSendButtonEnabled = false;
     private ProgressBar mLiveSendProgressBar;
+
+    WebSocketClient mWebSocketClient;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -315,7 +319,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
     }
 
-    public void toggleBroadcasting(View v) {
+    public void toggleBroadcasting(View v) throws URISyntaxException {
         Log.d(TAG, "Starting..");
         if(!isConnecting) {
             Log.d(TAG, "Not connecting....");
@@ -365,6 +369,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                                 }
                             }
                         }.execute(RTMP_BASE_URL + streamName);
+                        mWebSocketClient = liveGateway.getWebSocketConnection(pageId);
+                        mWebSocketClient.connect();
                     }
                     else {
                         Snackbar.make(mRootView, R.string.streaming_not_finished, Snackbar.LENGTH_LONG).show();
