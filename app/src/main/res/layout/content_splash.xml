@@ -14,7 +14,7 @@
         android:layout_width="328dp"
         android:layout_height="151dp"
         android:layout_gravity="center"
-        app:srcCompat="@mipmap/ic_logo_splash"
+        app:srcCompat="@mipmap/flive_logo_splash"
         tools:layout_editor_absoluteX="28dp"
         tools:layout_editor_absoluteY="180dp" />
 </FrameLayout>

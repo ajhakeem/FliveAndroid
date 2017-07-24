@@ -1,41 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/page_list_item"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="15dp"
-    android:minHeight="45dp"
-    android:orientation="vertical"
-    android:background="#FFF">
-    <TextView
-        android:id="@+id/page_list_item_name"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_margin="15dp"
-        android:drawablePadding="5dp"
-        android:textColor="#252424"
-        android:textSize="20sp" />
 
-    <TextView
-        android:id="@+id/page_list_item_blog_url"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="15dp"
-        android:autoLink="web"
-        
-        android:textColorLink="#1E8EE5"/>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/page_list_item_name"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:padding="3dp"
+    android:layout_gravity="center"
+    android:textColor="#353535"
+    android:background="#85FFFFFF"
+    android:textSize="20sp" />
 
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:text="Go live"
-        android:id="@+id/page_go_live_btn"
-        android:textColor="#FF0006"
-        android:background="#FFF"
-        android:visibility="gone"/>
-
-</LinearLayout>

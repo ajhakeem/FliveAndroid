@@ -45,6 +45,7 @@ import co.fanstories.android.MainActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.http.Http;
 import co.fanstories.android.R;
+import co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
 import co.fanstories.android.user.Token;
 import co.fanstories.android.user.User;
 import co.fanstories.android.utils.json.JSONUtils;
@@ -274,7 +275,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 private void goToLogin() {
-                    Intent mainIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                    Intent mainIntent = new Intent(LoginActivity.this, LiveVideoBroadcasterActivity.class);
                     LoginActivity.this.startActivity(mainIntent);
                     LoginActivity.this.finish();
                 }

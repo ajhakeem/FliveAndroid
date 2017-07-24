@@ -8,46 +8,68 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
-
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import co.fanstories.android.HomeActivity;
+import co.fanstories.android.authentication.AuthGateway;
+import co.fanstories.android.authentication.LoginActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.live.LiveGateway;
+import co.fanstories.android.pageScrollView.SelectedPageInterface;
+import co.fanstories.android.pages.PageGateway;
+import co.fanstories.android.pages.Pages;
+import co.fanstories.android.utils.json.JSONUtils;
+import co.fanstories.android.pageScrollView.HorizontalAdapter;
+import co.fanstories.android.pageScrollView.Icon;
 import io.antmedia.android.broadcaster.ILiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.LiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.utils.Resolution;
@@ -55,18 +77,21 @@ import io.antmedia.android.broadcaster.utils.Resolution;
 import static co.fanstories.android.liveVideoBroadcaster.StreamBaseURL.RTMP_BASE_URL;
 import co.fanstories.android.R;
 
-public class LiveVideoBroadcasterActivity extends AppCompatActivity {
+public class LiveVideoBroadcasterActivity extends AppCompatActivity implements View.OnClickListener, SelectedPageInterface {
     private static final String TAG = LiveVideoBroadcasterActivity.class.getSimpleName();
 
     private String streamKey;
     private String blogUrl;
     private String pageId;
 
+    private LinearLayout wrapperShareAndStream;
+    private LinearLayout wrapperStreamSettings;
+    private RelativeLayout fabContainer;
+    private LinearLayout wrapperVideoScroll;
+    private RelativeLayout wrapperButtons;
+    private RelativeLayout wrapperShareLink;
     private ViewGroup mRootView;
-    boolean mIsRecording = false;
-    private Timer mTimer;
-    private long mElapsedTime;
-    public TimerHandler mTimerHandler;
+
     private ImageButton mSettingsButton;
     private CameraResolutionsFragment mCameraResolutionsDialog;
     private Intent mLiveVideoBroadcasterServiceIntent;
@@ -74,15 +99,43 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     private GLSurfaceView mGLView;
     private ILiveVideoBroadcaster mLiveVideoBroadcaster;
     private Button mBroadcastControlButton;
+    private Button mStopBroadcast;
+    private ImageView live_fb_logo;
+    private WebSocketClient mWebSocketClient;
+
+    private Timer mTimer;
+    public TimerHandler mTimerHandler;
+    private long mElapsedTime;
+    int fb_logo_click_counter = 0;
+
+    private static int viewCount;
     private boolean isConnecting = false;
+    boolean mIsRecording = false;
+    private boolean scrollViewExpanded = true;
+    private boolean isLiveFBMessageSendButtonEnabled = false;
+    private boolean isLivePrepared = false;
+    private boolean isCountdownFinished = false;
+    private boolean isFabOpen;
+
+    FloatingActionButton fab, fabLogout;
+
+    public RecyclerView horizontal_recycler_view;
+    public HorizontalAdapter horizontalAdapter;
+    List<Icon> iconList = new ArrayList<>();
 
     private LiveGateway liveGateway;
 
     private LinearLayout mLiveFBShareLayout;
     private EditText mLiveFBMessageText;
     private Button mLiveFBMessageSendButton;
-    private boolean isLiveFBMessageSendButtonEnabled = false;
     private ProgressBar mLiveSendProgressBar;
+    private CountDownTimer recordCountdownTimer;
+    private TextView tvCountdownTimer;
+
+    List<String> arrayListPageNames = new ArrayList<String>();
+    String viewClickedPage = "";
+    static HashMap<String, Pages.Page> hashMapPageDetails = new HashMap<>();
+    static Pages.Page selectedLivePage;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -107,7 +160,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Hide title
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -115,22 +167,56 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         mLiveVideoBroadcasterServiceIntent = new Intent(this, LiveVideoBroadcaster.class);
         //this makes service do its job until done
         startService(mLiveVideoBroadcasterServiceIntent);
+        //bind service here because you can only use the setRender method ONCE
+        bindService(mLiveVideoBroadcasterServiceIntent, mConnection, 0);
 
         setContentView(R.layout.activity_live_video_broadcaster);
-
-        Intent liveIntent = getIntent();
-        streamKey = liveIntent.getStringExtra("streamKey");
-        blogUrl = liveIntent.getStringExtra("blogUrl");
-        pageId = liveIntent.getStringExtra("pageId");
-        Toast.makeText(this, streamKey, Toast.LENGTH_SHORT).show();
 
         mTimerHandler = new TimerHandler();
 
         mRootView = (ViewGroup)findViewById(R.id.root_layout);
         mSettingsButton = (ImageButton)findViewById(R.id.settings_button);
         mStreamLiveStatus = (TextView) findViewById(R.id.stream_live_status);
+        wrapperShareAndStream = (LinearLayout) findViewById(R.id.wrapperShareAndStream);
+        wrapperStreamSettings = (LinearLayout) findViewById(R.id.wrapperStreamSettings);
+        wrapperShareLink = (RelativeLayout) findViewById(R.id.wrapperShareLink);
+        fabContainer = (RelativeLayout) findViewById(R.id.fabContainer);
+        wrapperVideoScroll = (LinearLayout) findViewById(R.id.wrapperPageScroll);
+        wrapperButtons = (RelativeLayout) findViewById(R.id.wrapperButtons);
+        tvCountdownTimer = (TextView) findViewById(R.id.tvCountdownTimer);
+
+        live_fb_logo = (ImageView) findViewById(R.id.live_fb_logo);
+        live_fb_logo.setOnClickListener(this);
 
         mBroadcastControlButton = (Button) findViewById(R.id.toggle_broadcasting);
+        mBroadcastControlButton.setOnClickListener(this);
+
+        mStopBroadcast = (Button) findViewById(R.id.stop_broadcast);
+        mStopBroadcast.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (isCountdownFinished) {
+                    triggerStopRecording();
+                    fb_logo_click_counter = 0;
+                    recordCountdownTimer.cancel();
+                    tvCountdownTimer.setText("");
+                    mStopBroadcast.setVisibility(View.GONE);
+                    mBroadcastControlButton.setVisibility(View.VISIBLE);
+                    isCountdownFinished = false;
+                }
+
+                else {
+                    triggerStopRecording();
+                    fb_logo_click_counter = 0;
+                    recordCountdownTimer.cancel();
+                    tvCountdownTimer.setText("");
+                    mStopBroadcast.setVisibility(View.GONE);
+                    mBroadcastControlButton.setVisibility(View.VISIBLE);
+                }
+
+                return false;
+            }
+        });
 
         // Configure the GLSurfaceView.  This will start the Renderer thread, with an
         // appropriate EGL activity.
@@ -151,7 +237,304 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         mLiveSendProgressBar = (ProgressBar) findViewById(R.id.live_progress_bar);
 
         liveGateway = new LiveGateway(getApplicationContext());
+
+        //initFAB();
+
+        initializeScrollItems();
+        /*pagesSpinner = (Spinner) findViewById(R.id.pagesSpinner);
+
+        pagesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                spinnerSelectedPage = pagesSpinner.getSelectedItem().toString();
+                retrieveSelectedPageDetails();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });*/
+
+        recordCountdownTimer = new CountDownTimer(5050, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                tvCountdownTimer.setText("" + millisUntilFinished / 1000);
+                isCountdownFinished = false;
+            }
+
+            @Override
+            public void onFinish() {
+                tvCountdownTimer.setText("");
+                toggleBroadcasting(mBroadcastControlButton);
+                isCountdownFinished = true;
+            }
+
+        };
+
     }
+
+    public void initFAB() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fabLogout = (FloatingActionButton) findViewById(R.id.fab_logout);
+        fabLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                (new AuthGateway(getApplicationContext())).logout(new Callback() {
+                    @Override
+                    public void OnSuccess(boolean isSuccess) {
+                        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(i);
+                        Toast.makeText(getApplicationContext(), "You've been logged out", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(boolean isError) {
+                        //Snackbar.make(coordinatorLayout, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        isFabOpen = false;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isFabOpen) {
+                    fab.setImageResource(R.drawable.ic_close_black_24dp);
+                    showFabMenu();
+                } else {
+                    fab.setImageResource(R.mipmap.ic_burger_menu);
+                    hideFabMenu();
+                }
+            }
+        });
+    }
+
+    private void showFabMenu() {
+        isFabOpen = true;
+        fabLogout.animate().translationY(-getResources().getDimension(R.dimen.fab_logout_position));
+    }
+
+    private void hideFabMenu() {
+        isFabOpen = false;
+        fabLogout.animate().translationY(0);
+    }
+
+    public List<Icon> retrievePageScrollNames(List<String> iconN) {
+
+        for (int i = 0; i < iconN.size(); i++) {
+            iconList.add(new Icon(R.drawable.img1, iconN.get(i).toString()));
+        }
+
+        return iconList;
+    }
+
+    private void initializeScrollItems() {
+        PageGateway pageGateway1 = new PageGateway(getApplicationContext());
+        HashMap<String, String> hashMap1 = new HashMap<>();
+        pageGateway1.getPages(hashMap1, new Callback() {
+            @Override
+            public void onSuccess(JSONArray response) throws JSONException {
+                if (response.length() > 0) {
+                    arrayListPageNames = Pages.Page.fetchPageNames(response);
+                    initializeScrollView(arrayListPageNames);
+                }
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.pages_list_item, arrayListPageNames);
+                //pagesSpinner.setAdapter(arrayAdapter);
+            }
+        });
+
+    }
+
+    private void initializeScrollView(List<String> iconNames) {
+        horizontalAdapter = new HorizontalAdapter(retrievePageScrollNames(iconNames), getApplicationContext(), this);
+
+        horizontal_recycler_view= (RecyclerView) findViewById(R.id.horizontal_recycler_view);
+        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(LiveVideoBroadcasterActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        horizontal_recycler_view.setLayoutManager(horizontalLayoutManager);
+        horizontal_recycler_view.setAdapter(horizontalAdapter);
+    }
+
+    @Override
+    public void setSelectedPage(String selectedPage) {
+        viewClickedPage = selectedPage;
+        retrieveSelectedPageDetails();
+    }
+
+    public void retrieveSelectedPageDetails() {
+        PageGateway pageGateway = new PageGateway(getApplicationContext());
+        final HashMap<String, String> hashMap = new HashMap<>();
+
+        pageGateway.getPages(hashMap, new Callback() {
+            @Override
+            public void onSuccess(JSONArray response) throws JSONException {
+                if (response.length() > 0) {
+                    hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
+                }
+
+                selectedLivePage = hashMapPageDetails.get(viewClickedPage);
+                System.out.println(selectedLivePage);
+            }
+        });
+    }
+
+    public void goLive() {
+
+        if (viewClickedPage.length() == 0 || viewClickedPage == null) {
+            if (arrayListPageNames.size() == 0 || arrayListPageNames == null) {
+                resetButtons();
+                Toast.makeText(getApplicationContext(), "No pages loaded, please check your connection", Toast.LENGTH_SHORT).show();
+            }
+
+            resetButtons();
+            Toast.makeText(getApplicationContext(), "Please select a page to start streaming", Toast.LENGTH_SHORT).show();
+        }
+
+        else {
+            if (selectedLivePage.verified == true && selectedLivePage.blogUrl != null && selectedLivePage.blogUrl.length() > 0) {
+                collapsePageScrollView();
+                recordingButtons();
+                LiveGateway liveGateway = new LiveGateway(getApplicationContext());
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("page_id", selectedLivePage.pageId);
+                liveGateway.getStreamKey(params, new Callback() {
+                    @Override
+                    public void onSuccess(JSONObject response) throws JSONException {
+                        Map<String, Object> res = JSONUtils.jsonToMap(response);
+
+                        streamKey = ((Map)res.get("data")).get("stream_key").toString();
+                        blogUrl = "http://" + selectedLivePage.blogUrl + "/live";
+                        pageId = selectedLivePage.pageId;
+
+                        isLivePrepared = true;
+                        fabContainer.setVisibility(View.GONE);
+                        wrapperShareAndStream.setVisibility(View.VISIBLE);
+                        wrapperShareLink.setAlpha(0.0f);
+                        wrapperStreamSettings.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void Onerror(VolleyError volleyError) {
+                        Toast.makeText(getApplicationContext(), "Could not get key. Contact support.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                recordCountdownTimer.start();
+            }
+
+            else {
+                resetButtons();
+                Toast.makeText(getApplicationContext(), "The selected page does not have a blog", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public void resetButtons() {
+        mBroadcastControlButton.setVisibility(View.VISIBLE);
+        mStopBroadcast.setVisibility(View.GONE);
+    }
+
+    public void recordingButtons() {
+        mBroadcastControlButton.setVisibility(View.GONE);
+        mStopBroadcast.setVisibility(View.VISIBLE);
+    }
+
+    public void expandPageScrollView() {
+        if (scrollViewExpanded == false) {
+            wrapperVideoScroll.animate().translationY(0);
+            wrapperButtons.animate().translationY(0);
+            scrollViewExpanded = true;
+        }
+    }
+
+    public void collapsePageScrollView() {
+        if (scrollViewExpanded == true) {
+            wrapperVideoScroll.animate().translationY(360);
+            wrapperButtons.animate().translationY(360);
+            scrollViewExpanded = false;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mBroadcastControlButton) {
+            goLive();
+            //mBroadcastControlButton.setVisibility(View.GONE);
+            //mStopBroadcast.setVisibility(View.VISIBLE);
+        }
+
+        if (v == live_fb_logo) {
+            fb_logo_click_counter++;
+
+            if (fb_logo_click_counter % 2 == 1) {
+                wrapperShareLink.animate().alpha(1.0f);
+            }
+
+            else {
+                wrapperShareLink.animate().alpha(0.0f);
+            }
+        }
+
+    }
+
+    /*private void connectWebSocket() {
+        URI uri;
+
+        try {
+            uri = new URI("ws://analytics.fanadnetwork.com/ws?ws_request=true&ws_pub_id=" + selectedLivePage.pageId);
+        }
+
+        catch (URISyntaxException e) {
+            Log.d(TAG, "URI ERROR");
+            e.printStackTrace();
+            return;
+        }
+
+
+
+        mWebSocketClient = new WebSocketClient(uri) {
+            @Override
+            public void onOpen(ServerHandshake handshakedata) {
+                Log.d(TAG, "Websocket Opened " + "\n" + handshakedata);
+                mWebSocketClient.send("Hello");
+            }
+
+            @Override
+            public void onMessage(String message) {
+                final String messageString = message;
+
+                Log.d(TAG, "onMessage triggered: " + messageString);
+
+                if (messageString == "1") {
+                    viewCount++;
+                    Log.d(TAG, "WS message = 1");
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), messageString, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onClose(int code, String reason, boolean remote) {
+                Log.d(TAG, "Websocket closed");
+            }
+
+            @Override
+            public void onError(Exception ex) {
+                Log.d(TAG, "Websocket error " + ex);
+            }
+        };
+
+        mWebSocketClient.connect();
+    }*/
+
 
     public void disableFBShare() {
         mLiveFBMessageSendButton.setBackground(getResources().getDrawable(R.drawable.live_share_button_disabled));
@@ -180,7 +563,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
             liveGateway.shareLink(params, new Callback() {
                 @Override
                 public void onSuccess(JSONObject response) throws JSONException {
-                    Log.d(TAG, response.toString());
+                    //Log.d(TAG, response.toString());
                     if(response.get("status").equals("success")) {
                         mLiveSendProgressBar.setVisibility(View.GONE);
                         mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
@@ -215,7 +598,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         super.onStart();
         //this lets activity bind
         bindService(mLiveVideoBroadcasterServiceIntent, mConnection, 0);
-
     }
 
     @Override
@@ -271,14 +653,13 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         if (mCameraResolutionsDialog != null && mCameraResolutionsDialog.isVisible()) {
             mCameraResolutionsDialog.dismiss();
         }
-        mLiveVideoBroadcaster.pause();
+        //mLiveVideoBroadcaster.pause();
     }
-
 
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(mConnection);
+        //unbindService(mConnection);
     }
 
     @Override
@@ -286,7 +667,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mLiveVideoBroadcaster.setDisplayOrientation();
+                mLiveVideoBroadcaster.setDisplayOrientation();
         }
 
     }
@@ -302,7 +683,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
         ArrayList<Resolution> sizeList = mLiveVideoBroadcaster.getPreviewSizeList();
 
-
         if (sizeList != null && sizeList.size() > 0) {
             mCameraResolutionsDialog = new CameraResolutionsFragment();
 
@@ -316,87 +696,122 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     }
 
     public void toggleBroadcasting(View v) {
-        Log.d(TAG, "Starting..");
-        if(!isConnecting) {
-            Log.d(TAG, "Not connecting....");
-            if (!mIsRecording)
-            {
-                Log.d(TAG, "Not recording..");
-                isConnecting = true;
-                isLiveFBMessageSendButtonEnabled = false;
-                mBroadcastControlButton.setText("Connecting..");
-                if (mLiveVideoBroadcaster != null) {
-                    if (!mLiveVideoBroadcaster.isConnected()) {
-                        String streamName = streamKey;
+        if (isLivePrepared) {
+            wrapperShareLink.animate().alpha(0.0f);
+            if(!isConnecting) {
+                if (!mIsRecording)
+                {
+                    isConnecting = true;
+                    isLiveFBMessageSendButtonEnabled = false;
+                    if (mLiveVideoBroadcaster != null) {
+                        if (!mLiveVideoBroadcaster.isConnected()) {
+                            String streamName = streamKey;
 
-                        new AsyncTask<String, String, Boolean>() {
-                            ContentLoadingProgressBar
-                                    progressBar;
-                            @Override
-                            protected void onPreExecute() {
-                                progressBar = new ContentLoadingProgressBar(LiveVideoBroadcasterActivity.this);
-                                progressBar.show();
-                            }
-
-                            @Override
-                            protected Boolean doInBackground(String... url) {
-                                return mLiveVideoBroadcaster.startBroadcasting(url[0]);
-
-                            }
-
-                            @Override
-                            protected void onPostExecute(Boolean result) {
-                                progressBar.hide();
-                                mIsRecording = result;
-                                Log.d(TAG, "Result: " + String.valueOf(result));
-                                if (result) {
-                                    mStreamLiveStatus.setVisibility(View.VISIBLE);
-
-                                    isLiveFBMessageSendButtonEnabled = true;
-
-                                    isConnecting = false;
-                                    mBroadcastControlButton.setText(R.string.stop_broadcasting);
-                                    mSettingsButton.setVisibility(View.GONE);
-                                    startTimer();//start the recording duration
+                            new AsyncTask<String, String, Boolean>() {
+                                ContentLoadingProgressBar
+                                        progressBar;
+                                @Override
+                                protected void onPreExecute() {
+                                    progressBar = new ContentLoadingProgressBar(LiveVideoBroadcasterActivity.this);
+                                    progressBar.show();
                                 }
-                                else {
-                                    Toast.makeText(getApplicationContext(), "Could not connect to server", Toast.LENGTH_LONG);
-                                    triggerStopRecording();
+
+                                @Override
+                                protected Boolean doInBackground(String... url) {
+                                    return mLiveVideoBroadcaster.startBroadcasting(url[0]);
                                 }
+
+                                @Override
+                                protected void onPostExecute(Boolean result) {
+                                    progressBar.hide();
+                                    mIsRecording = result;
+                                    if (result) {
+                                        mStreamLiveStatus.setVisibility(View.VISIBLE);
+                                        isLiveFBMessageSendButtonEnabled = true;
+                                        isConnecting = false;
+                                        //mBroadcastControlButton.setBackgroundResource(R.drawable.live_stop_button);
+                                        mSettingsButton.setVisibility(View.GONE);
+                                        startTimer();//start the recording duration
+                                    }
+                                    else {
+                                        triggerStopRecording();
+                                    }
+                                }
+                            }.execute(RTMP_BASE_URL + streamName);
+
+                            try {
+                                mWebSocketClient = liveGateway.getWebSocketConnection(pageId);
+                                mWebSocketClient.connect();
                             }
-                        }.execute(RTMP_BASE_URL + streamName);
+
+                            catch (URISyntaxException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else {
+                            Snackbar.make(mRootView, R.string.streaming_not_finished, Snackbar.LENGTH_LONG).show();
+                        }
                     }
                     else {
-                        Snackbar.make(mRootView, R.string.streaming_not_finished, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mRootView, R.string.oopps_shouldnt_happen, Snackbar.LENGTH_LONG).show();
                     }
                 }
-                else {
-                    Snackbar.make(mRootView, R.string.oopps_shouldnt_happen, Snackbar.LENGTH_LONG).show();
+                else
+                {
+                    //mBroadcastControlButton.setBackgroundResource(R.drawable.live_record_button);
+                    triggerStopRecording();
                 }
             }
-            else
-            {
-                triggerStopRecording();
-            }
-        } else {
-            Log.d(TAG, "Connecting already..");
+        }
+
+        else {
+            retrieveSelectedPageDetails();
         }
     }
 
 
     public void triggerStopRecording() {
+        /*if (wrapperPageSpinner.getVisibility() == View.VISIBLE) {
+            mBroadcastControlButton.setVisibility(View.VISIBLE);
+        }*/
+
+        /*if (wrapperVideoScroll.getVisibility() == View.VISIBLE) {
+            mBroadcastControlButton.setVisibility((View.VISIBLE));
+        }*/
         if (mIsRecording) {
-            mBroadcastControlButton.setText(R.string.start_broadcasting);
+            //mBroadcastControlButton.setText(R.string.start_broadcasting);
 
             mStreamLiveStatus.setVisibility(View.GONE);
             mStreamLiveStatus.setText(R.string.live_indicator);
             mSettingsButton.setVisibility(View.VISIBLE);
 
             stopTimer();
+            recordCountdownTimer.cancel();
+            tvCountdownTimer.setText("");
+            isCountdownFinished = false;
             mLiveVideoBroadcaster.stopBroadcasting();
+            expandPageScrollView();
+            wrapperShareAndStream.setVisibility(View.GONE);
+            wrapperStreamSettings.setVisibility(View.VISIBLE);
         }
-        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-        startActivity(intent);
+
+        else {
+            mStreamLiveStatus.setVisibility(View.GONE);
+            mStreamLiveStatus.setText(R.string.live_indicator);
+            mSettingsButton.setVisibility(View.VISIBLE);
+
+            stopTimer();
+            recordCountdownTimer.cancel();
+            tvCountdownTimer.setText("");
+            isCountdownFinished = false;
+            mLiveVideoBroadcaster.stopBroadcasting();
+            expandPageScrollView();
+            //wrapperVideoScroll.setVisibility(View.VISIBLE);
+            wrapperShareAndStream.setVisibility(View.GONE);
+            wrapperStreamSettings.setVisibility(View.VISIBLE);
+        }
+        //Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        //startActivity(intent);
         mIsRecording = false;
     }
 
@@ -477,5 +892,26 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         }
 
         return String.valueOf(number);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        triggerStopRecording();
+        expandPageScrollView();
+        horizontalAdapter.notifyDataSetChanged();
+        mBroadcastControlButton.setVisibility(View.VISIBLE);
+        mStopBroadcast.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        triggerStopRecording();
+        unbindService(mConnection);
+        super.onDestroy();
     }
 }

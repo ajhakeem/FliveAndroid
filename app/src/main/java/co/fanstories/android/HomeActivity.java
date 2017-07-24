@@ -1,115 +1,131 @@
 package co.fanstories.android;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
+import android.content.ServiceConnection;
+import android.hardware.Camera;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.support.annotation.BoolRes;
-import android.support.design.widget.CoordinatorLayout;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.ListView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
 
 import co.fanstories.android.authentication.AuthGateway;
 import co.fanstories.android.authentication.LoginActivity;
 import co.fanstories.android.http.Callback;
-import co.fanstories.android.pages.PageAdapter;
+import co.fanstories.android.live.LiveGateway;
+import co.fanstories.android.liveVideoBroadcaster.CameraResolutionsFragment;
+import co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
 import co.fanstories.android.pages.PageGateway;
 import co.fanstories.android.pages.Pages;
+import co.fanstories.android.utils.json.JSONUtils;
+import io.antmedia.android.broadcaster.ILiveVideoBroadcaster;
+import io.antmedia.android.broadcaster.LiveVideoBroadcaster;
 
 public class HomeActivity extends AppCompatActivity {
-
     private static final String TAG = "HOME";
-    PageAdapter adapter;
-    ArrayList<Pages.Page> mPages;
-
-    private CoordinatorLayout coordinatorLayout;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private RelativeLayout rlHomeView;
     FloatingActionButton fab, fabLogout;
-    ListView pagesListView;
     ProgressBar progressBar;
-    TextView errorMessageView;
-    TextView noPagesAvailableView;
-    TextView fbNotLinkedView;
-    Button tryAgainButton;
 
     private boolean isFabOpen;
+
+    List<String> arrayListPageNames = new ArrayList<String>();
+    Spinner pagesSpinner;
+    String spinnerSelectedPage = "";
+    Button go_live_button;
+    static HashMap<String, Pages.Page> hashMapPageDetails = new HashMap<>();
+    static Pages.Page selectedLivePage;
+
+    /**********************************************************************/
+
+    private String streamKey;
+    private String blogUrl;
+    private String pageId;
+
+    private ViewGroup mRootView;
+    boolean mIsRecording = false;
+    private Timer mTimer;
+    private long mElapsedTime;
+    //public HomeActivity.TimerHandler mTimerHandler;
+    private ImageButton mSettingsButton;
+    private CameraResolutionsFragment mCameraResolutionsDialog;
+    private Intent mLiveVideoBroadcasterServiceIntent;
+    private TextView mStreamLiveStatus;
+    private GLSurfaceView mGLView;
+    private ILiveVideoBroadcaster mLiveVideoBroadcaster;
+    private Button mBroadcastControlButton;
+    private boolean isConnecting = false;
+
+    private LiveGateway liveGateway;
+
+    private LinearLayout mLiveFBShareLayout;
+    private EditText mLiveFBMessageText;
+    private Button mLiveFBMessageSendButton;
+    private boolean isLiveFBMessageSendButtonEnabled = false;
+    private ProgressBar mLiveSendProgressBar;
+
+    /*********************************************************************/
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            LiveVideoBroadcaster.LocalBinder binder = (LiveVideoBroadcaster.LocalBinder) service;
+            mLiveVideoBroadcaster = binder.getService();
+            mLiveVideoBroadcaster.init(HomeActivity.this, mGLView);
+            mLiveVideoBroadcaster.openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mLiveVideoBroadcaster = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_home);
         setContentView(R.layout.activity_home);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitleTextColor(Color.WHITE);
-        setSupportActionBar(toolbar);
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.home_view);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         final LayoutInflater inflater =
                 (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View headerFooter = inflater.inflate(R.layout.header_footer, null);
 
-        noPagesAvailableView = (TextView) findViewById(R.id.page_none);
-
-        errorMessageView = (TextView) findViewById(R.id.error_message);
-
-        tryAgainButton = (Button) findViewById(R.id.button_reload);
-        tryAgainButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadPages();
-            }
-        });
-
-        pagesListView = (ListView) findViewById(R.id.page_list);
-        pagesListView.addFooterView(headerFooter);
-        pagesListView.addHeaderView(headerFooter);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefreshPages);
-        swipeRefreshLayout.setDistanceToTriggerSync(120);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(true);
-                loadPages();
-            }
-        });
+        rlHomeView = (RelativeLayout) findViewById(R.id.home_view);
 
         progressBar = (ProgressBar) findViewById(R.id.pages_progress);
 
@@ -128,7 +144,7 @@ public class HomeActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(boolean isError) {
-                        Snackbar.make(coordinatorLayout, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -146,7 +162,25 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
-        loadPages();
+
+        initializeSpinner();
+        //pagesSpinner = (Spinner) findViewById(R.id.pagesSpinner);
+
+        /*pagesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                spinnerSelectedPage = pagesSpinner.getSelectedItem().toString();
+                retrieveSelectedPageDetails();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });*/
+
+        /*********************************************************************/
+
     }
 
     private void showFabMenu() {
@@ -159,102 +193,72 @@ public class HomeActivity extends AppCompatActivity {
         fabLogout.animate().translationY(0);
     }
 
-    private void initialize() {
-        if(adapter != null) {
-            adapter.clear();
-        }
-        adapter = new PageAdapter(this, mPages);
-
-        pagesListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+    private void initializeSpinner() {
+        PageGateway pageGateway1 = new PageGateway(getApplicationContext());
+        HashMap<String, String> hashMap1 = new HashMap<>();
+        pageGateway1.getPages(hashMap1, new Callback() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if(firstVisibleItem == 0) {
-                    swipeRefreshLayout.setEnabled(true);
-                } else if (!swipeRefreshLayout.isRefreshing() || firstVisibleItem != 0){
-                    swipeRefreshLayout.setEnabled(false);
+            public void onSuccess(JSONArray response) throws JSONException {
+                if (response.length() > 0) {
+                    arrayListPageNames = Pages.Page.fetchPageNames(response);
                 }
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.pages_list_item, arrayListPageNames);
+                //pagesSpinner.setAdapter(arrayAdapter);
             }
         });
-        swipeRefreshLayout.setRefreshing(false);
-        pagesListView.setAdapter(adapter);
-        showProgress(false);
-        showListView(true);
     }
 
-    private void showProgress(final boolean show) {
-        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    private void showListView(final boolean show) {
-        pagesListView.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    private void showNoPagesAvailableMessage(final boolean show) {
-        noPagesAvailableView.setVisibility(show ? View.VISIBLE : View.GONE);
-        tryAgainButton.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    private void showErrorMessage(final boolean show) {
-        errorMessageView.setVisibility(show ? View.VISIBLE : View.GONE);
-        tryAgainButton.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    private void loadPages() {
-        showListView(false);
-        showProgress(true);
-        showErrorMessage(false);
-        showNoPagesAvailableMessage(false);
-
+    public void retrieveSelectedPageDetails() {
         PageGateway pageGateway = new PageGateway(getApplicationContext());
-        HashMap<String, String> hashMap = new HashMap<>();
+        final HashMap<String, String> hashMap = new HashMap<>();
+
+        Log.d(TAG, "Pages Object Out");
+
         pageGateway.getPages(hashMap, new Callback() {
             @Override
             public void onSuccess(JSONArray response) throws JSONException {
-                Log.d(TAG, response.toString());
-                if(response.length() > 0) {
-                    mPages = Pages.Page.fromJson(response);
-                    //Sort the list based on their verified status.
-                    Collections.sort(mPages, new Comparator<Pages.Page>() {
-                        @Override
-                        public int compare(Pages.Page o1, Pages.Page o2) {
-                            return (o1.verified ^ o2.verified) ? ((o1.verified ^ true) ? 1 : -1) : 0;
-                        }
-                    });
-                    initialize();
-                } else {
-                    showProgress(false);
-                    showNoPagesAvailableMessage(true);
+                if (response.length() > 0) {
+                    hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
                 }
-            }
 
-            @Override
-            public void Onerror(VolleyError error) {
-                Log.d(TAG, error.getMessage());
-                String message = null;
-                if (error instanceof NetworkError) {
-                    message = "Cannot connect to Internet...Please check your connection!";
-                } else if (error instanceof ServerError) {
-                    message = "The server could not be found. Please try again after some time!!";
-                } else if (error instanceof AuthFailureError) {
-                    message = "Cannot connect to Internet...Please check your connection!";
-                } else if (error instanceof ParseError) {
-                    message = "Parsing error! Please try again after some time!!";
-                } else if (error instanceof NoConnectionError) {
-                    message = "Cannot connect to Internet...Please check your connection!";
-                } else if (error instanceof TimeoutError) {
-                    message = "Connection TimeOut! Please check your internet connection.";
-                }
-                errorMessageView.setText(message);
-                showProgress(false);
-                swipeRefreshLayout.setRefreshing(false);
-                showErrorMessage(true);
-                Toast.makeText(getApplicationContext(), "Could not load pages.", Toast.LENGTH_SHORT).show();
+                //selectedLivePage = hashMapPageDetails.get(spinnerSelectedPage);
             }
         });
     }
+
+    public void goLive() {
+        //initBroadcastActivity();
+
+        if (selectedLivePage.verified == true && selectedLivePage.blogUrl != null && selectedLivePage.blogUrl.length() > 0) {
+            LiveGateway liveGateway = new LiveGateway(getApplicationContext());
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("page_id", selectedLivePage.pageId);
+            liveGateway.getStreamKey(params, new Callback() {
+                @Override
+                public void onSuccess(JSONObject response) throws JSONException {
+                    Map<String, Object> res = JSONUtils.jsonToMap(response);
+                    Intent intent = new Intent(getApplicationContext(), LiveVideoBroadcasterActivity.class);
+                    intent.putExtra("streamKey", ((Map)res.get("data")).get("stream_key").toString());
+                    intent.putExtra("blogUrl", "http://" + selectedLivePage.blogUrl + "/live");
+                    intent.putExtra("pageId", selectedLivePage.pageId);
+
+                    streamKey = ((Map)res.get("data")).get("stream_key").toString();
+                    blogUrl = "http://" + selectedLivePage.blogUrl + "/live";
+                    pageId = selectedLivePage.pageId;
+                    getApplicationContext().startActivity(intent);
+                }
+
+                @Override
+                public void Onerror(VolleyError volleyError) {
+                    Toast.makeText(getApplicationContext(), "Could not get key. Contact support.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        else {
+            Toast.makeText(getApplicationContext(), "The selected page does not have a blog", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }
