@@ -185,22 +185,33 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/wrapperPageScroll"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
+        android:background="#9095a0"
         >
+
+        <TextView
+            android:id="@+id/tvBlogSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="Select a blog and press record to go live"
+            android:textColor="#FFFFFF"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/horizontal_recycler_view"
-            android:background="#dbdbdb"
+            android:background="#9095a0"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/tvBlogSelect"
             />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/wrapperButtons"

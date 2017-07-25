@@ -89,7 +89,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private RelativeLayout wrapperShareAndStream;
     private LinearLayout wrapperStreamSettings;
     private RelativeLayout fabContainer;
-    private LinearLayout wrapperVideoScroll;
+    private RelativeLayout wrapperVideoScroll;
     private RelativeLayout wrapperButtons;
     private RelativeLayout wrapperShareLink;
     private ViewGroup mRootView;
@@ -118,6 +118,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private boolean isLivePrepared = false;
     private boolean isCountdownFinished = false;
     private boolean isFabOpen;
+    private long lastBackPressTime = 0;
+    private Toast exitToast;
 
     FloatingActionButton fab, fabLogout;
 
@@ -183,7 +185,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         wrapperStreamSettings = (LinearLayout) findViewById(R.id.wrapperStreamSettings);
         wrapperShareLink = (RelativeLayout) findViewById(R.id.wrapperShareLink);
         fabContainer = (RelativeLayout) findViewById(R.id.fabContainer);
-        wrapperVideoScroll = (LinearLayout) findViewById(R.id.wrapperPageScroll);
+        wrapperVideoScroll = (RelativeLayout) findViewById(R.id.wrapperPageScroll);
         wrapperButtons = (RelativeLayout) findViewById(R.id.wrapperButtons);
         tvCountdownTimer = (TextView) findViewById(R.id.tvCountdownTimer);
 
@@ -293,7 +295,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                     @Override
                     public void onError(boolean isError) {
                         //Snackbar.make(coordinatorLayout, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
-                        Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -716,7 +718,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             mCameraResolutionsDialog = new CameraResolutionsFragment();
 
             mCameraResolutionsDialog.setCameraResolutions(sizeList, mLiveVideoBroadcaster.getPreviewSize());
-            mCameraResolutionsDialog.show(ft, "resolutiton_dialog");
+            mCameraResolutionsDialog.show(ft, "resolution_dialog");
         }
         else {
             Snackbar.make(mRootView, "No resolution available",Snackbar.LENGTH_LONG).show();
@@ -927,10 +929,33 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
     @Override
     public void onBackPressed() {
-        triggerStopRecording();
-        expandPageScrollView();
-        mBroadcastControlButton.setVisibility(View.VISIBLE);
-        mStopBroadcast.setVisibility(View.GONE);
+        if (mIsRecording) {
+            triggerStopRecording();
+            expandPageScrollView();
+            mBroadcastControlButton.setVisibility(View.VISIBLE);
+            mStopBroadcast.setVisibility(View.GONE);
+        }
+
+        if (isCountdownFinished == false) {
+            triggerStopRecording();
+            expandPageScrollView();
+            mBroadcastControlButton.setVisibility(View.VISIBLE);
+            mStopBroadcast.setVisibility(View.GONE);
+        }
+
+        if (this.lastBackPressTime < System.currentTimeMillis() - 3000) {
+            exitToast = Toast.makeText(getApplicationContext(), "Press back again to close app", Toast.LENGTH_SHORT);
+            exitToast.show();
+            this.lastBackPressTime = System.currentTimeMillis();
+        }
+
+        else {
+            if (exitToast != null) {
+                exitToast.cancel();
+            }
+
+            super.onBackPressed();
+        }
     }
 
     @Override
