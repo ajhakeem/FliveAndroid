@@ -71,6 +71,9 @@ public class Pages {
         public static HashMap<String, Page> hashFromJson(JSONArray jsonArray, HashMap<String, Page> hashMapPageDetails) {
             //Log.d(TAG, jsonArray.toString());
 
+            System.out.print("JSON ARRAY PRINTED");
+            System.out.println(jsonArray);
+
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
                     hashMapPageDetails.put(jsonArray.getJSONObject(i).getString("name"), new Page(jsonArray.getJSONObject(i)));

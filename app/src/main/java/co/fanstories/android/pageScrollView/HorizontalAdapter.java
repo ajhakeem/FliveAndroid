@@ -1,6 +1,7 @@
 package co.fanstories.android.pageScrollView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     List<Icon> horizontalList = Collections.emptyList();
     Context context;
     SelectedPageInterface selectedPageInterface;
+    int selectedPos;
 
 
     public HorizontalAdapter(List<Icon> horizontalList, Context context, SelectedPageInterface selectedPageInterface) {
@@ -54,16 +56,26 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
         return new IconViewHolder(itemView);
     }
 
+    /** Set individual icon contents, handle highlights on click **/
     @Override
     public void onBindViewHolder(final IconViewHolder holder, final int position) {
         holder.imageView.setImageResource(horizontalList.get(position).imageId);
         holder.txtview.setText(horizontalList.get(position).txt);
 
+        if (selectedPos == position) {
+            holder.iconView.setBackgroundColor(context.getResources().getColor(R.color.channelScrollSelect));
+        }
+
+        else {
+            holder.iconView.setBackgroundColor(Color.parseColor("#40000000"));
+        }
+
         holder.iconView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectedPageInterface.setSelectedPage(holder.txtview.getText().toString());
-                holder.iconView.setBackgroundColor(context.getResources().getColor(R.color.channelScrollSelect));
+                notifyDataSetChanged();
+                selectedPos = position;
             }
         });
 
