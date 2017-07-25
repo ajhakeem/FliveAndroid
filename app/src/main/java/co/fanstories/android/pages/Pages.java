@@ -58,7 +58,9 @@ public class Pages {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
-                    pageNames.add(jsonArray.getJSONObject(i).getString("name"));
+                    if(jsonArray.getJSONObject(i).get("verified").equals("1")) {
+                        pageNames.add(jsonArray.getJSONObject(i).getString("name"));
+                    }
                 }
 
                 catch (JSONException e) {
