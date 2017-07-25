@@ -71,17 +71,18 @@
         android:id="@+id/wrapperShareAndStream"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_below="@id/wrapperStreamSettings"
+        android:layout_gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        android:layout_below="@id/wrapperStreamSettings">
+        android:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/wrapperShareToFacebook"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="5dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/live_fb_logo"
@@ -95,18 +96,18 @@
                 android:id="@+id/wrapperShareLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="visible"
-                android:layout_toRightOf="@id/live_fb_logo" >
+                android:layout_toRightOf="@id/live_fb_logo"
+                android:visibility="visible">
 
                 <EditText
                     android:id="@+id/live_fb_share_link_message"
                     android:layout_width="wrap_content"
-                    android:hint="Share to facebook"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:ems="10"
-                    android:maxLines="3"
-                    android:inputType="textMultiLine" />
+                    android:hint="Share to facebook"
+                    android:inputType="textMultiLine"
+                    android:maxLines="3" />
 
                 <Button
                     android:id="@+id/live_fb_message_send_button"
@@ -115,9 +116,9 @@
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/live_share_button_enabled"
                     android:drawableStart="@drawable/ic_send_24dp"
-                    android:drawableTint="#FFF"
-                    android:layout_alignEnd="@id/live_fb_share_link_message"
-                    android:paddingLeft="10dp" />
+                    android:paddingLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:drawableTint="#FFF" />
 
             </RelativeLayout>
 
@@ -188,7 +189,7 @@
     <RelativeLayout
         android:id="@+id/wrapperPageScroll"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="200dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:background="#9095a0"
@@ -198,6 +199,8 @@
             android:id="@+id/tvBlogSelect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="15dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:text="Select a blog and press record to go live"

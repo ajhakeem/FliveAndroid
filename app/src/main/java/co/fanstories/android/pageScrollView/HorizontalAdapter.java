@@ -3,6 +3,7 @@ package co.fanstories.android.pageScrollView;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import co.fanstories.android.R;
 
 public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.IconViewHolder> {
 
+    private final static String TAG = "HorizontalAdapter";
 
     List<Icon> horizontalList = Collections.emptyList();
     Context context;
@@ -63,11 +65,9 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
         holder.txtview.setText(horizontalList.get(position).txt);
 
         if (selectedPos == position) {
-            holder.iconView.setBackgroundColor(context.getResources().getColor(R.color.channelScrollSelect));
-        }
-
-        else {
-            holder.iconView.setBackgroundColor(Color.parseColor("#40000000"));
+            holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background_selected, null));
+        } else {
+            holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background, null));
         }
 
         holder.iconView.setOnClickListener(new View.OnClickListener() {

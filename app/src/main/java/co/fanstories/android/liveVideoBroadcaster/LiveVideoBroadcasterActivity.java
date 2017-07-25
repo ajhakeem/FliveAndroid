@@ -427,6 +427,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                         isLivePrepared = true;
                         fabContainer.setVisibility(View.GONE);
                         wrapperShareAndStream.setVisibility(View.VISIBLE);
+
                         wrapperShareLink.setAlpha(0.0f);
                         wrapperStreamSettings.setVisibility(View.VISIBLE);
                     }
@@ -477,7 +478,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
     public void collapsePageScrollView() {
         if (scrollViewExpanded == true) {
-            wrapperVideoScroll.animate().translationY(360);
+            wrapperVideoScroll.animate().translationY(800);
             wrapperButtons.animate().translationY(360);
             scrollViewExpanded = false;
         }
