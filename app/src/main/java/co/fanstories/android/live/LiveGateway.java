@@ -70,7 +70,7 @@ public class LiveGateway {
         return stringBuilder.toString();
     }
 
-    public WebSocketClient getWebSocketConnection(final String pageId) throws URISyntaxException {
+    public WebSocketClient getWebSocketConnection(final String pageId, final StreamViews streamViews) throws URISyntaxException {
         HashMap<String, String> params = new HashMap<>();
         params.put("ws_request", "true");
             params.put("ws_pub_id", pageId);
@@ -85,6 +85,7 @@ public class LiveGateway {
             @Override
             public void onMessage(String message) {
                 Log.d(TAG, "Websocket: " + message);
+                streamViews.updateViewsCount(message);
             }
 
             @Override

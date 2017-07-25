@@ -74,7 +74,7 @@
         android:layout_below="@id/wrapperStreamSettings"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <RelativeLayout
             android:id="@+id/wrapperShareToFacebook"
@@ -114,6 +114,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center_vertical"
+                    android:layout_alignEnd="@+id/live_fb_share_link_message"
                     android:background="@drawable/live_share_button_enabled"
                     android:drawableStart="@drawable/ic_send_24dp"
                     android:paddingLeft="10dp"
@@ -245,5 +246,25 @@
             />
 
     </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/viewsIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/wrapperStreamSettings"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="30dp"
+        android:layout_toStartOf="@+id/tvCountdownTimer"
+        android:background="@android:color/transparent"
+        app:srcCompat="@android:drawable/ic_menu_view" />
+
+    <TextView
+        android:id="@+id/viewsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/wrapperStreamSettings"
+        android:layout_marginBottom="16dp"
+        android:layout_toEndOf="@+id/viewsIcon"
+        android:text="0" />
 
 </RelativeLayout>

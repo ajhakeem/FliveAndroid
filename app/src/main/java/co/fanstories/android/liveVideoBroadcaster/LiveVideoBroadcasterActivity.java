@@ -52,6 +52,7 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -66,6 +67,7 @@ import co.fanstories.android.authentication.AuthGateway;
 import co.fanstories.android.authentication.LoginActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.live.LiveGateway;
+import co.fanstories.android.live.StreamViews;
 import co.fanstories.android.pageScrollView.SelectedPageInterface;
 import co.fanstories.android.pages.PageGateway;
 import co.fanstories.android.pages.Pages;
@@ -103,6 +105,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private Button mBroadcastControlButton;
     private Button mStopBroadcast;
     private ImageView live_fb_logo;
+    private ImageButton viewsIcon;
+    private TextView viewsCount;
+    Long totalViewsCount;
+
     private WebSocketClient mWebSocketClient;
 
     private Timer mTimer;
@@ -135,7 +141,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private ProgressBar mLiveSendProgressBar;
     private CountDownTimer recordCountdownTimer;
     private TextView tvCountdownTimer;
-
     List<String> arrayListPageNames = new ArrayList<String>();
     String viewClickedPage = "";
     static HashMap<String, Pages.Page> hashMapPageDetails = new HashMap<>();
@@ -222,6 +227,9 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             }
         });
 
+        viewsIcon = (ImageButton) findViewById(R.id.viewsIcon);
+        viewsCount = (TextView) findViewById(R.id.viewsCount);
+
         // Configure the GLSurfaceView.  This will start the Renderer thread, with an
         // appropriate EGL activity.
         mGLView = (GLSurfaceView) findViewById(R.id.cameraPreview_surfaceView);
@@ -243,7 +251,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         liveGateway = new LiveGateway(getApplicationContext());
 
         initFAB();
-
+        hideViewsCount();
         initializeScrollItems();
         /*pagesSpinner = (Spinner) findViewById(R.id.pagesSpinner);
 
@@ -276,6 +284,20 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         };
 
+    }
+
+    public void initializeViewsCount() {
+         totalViewsCount = 0L;
+    }
+
+    public void hideViewsCount() {
+        viewsCount.setVisibility(View.GONE);
+        viewsIcon.setVisibility(View.GONE);
+    }
+
+    public void showViewsCount() {
+        viewsCount.setVisibility(View.VISIBLE);
+        viewsIcon.setVisibility(View.VISIBLE);
     }
 
     public void initFAB() {
@@ -718,8 +740,18 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                             }.execute(RTMP_BASE_URL + streamName);
 
                             try {
-                                mWebSocketClient = liveGateway.getWebSocketConnection(pageId);
+                                initializeViewsCount();
+                                mWebSocketClient = liveGateway.getWebSocketConnection(pageId, new StreamViews() {
+                                    @Override
+                                    public void updateViewsCount(String message) {
+                                        if(message.equals("1")) {
+                                            totalViewsCount += 1;
+                                            viewsCount.setText(String.valueOf(totalViewsCount));
+                                        }
+                                    }
+                                });
                                 mWebSocketClient.connect();
+                                showViewsCount();
                             }
 
                             catch (URISyntaxException e) {
@@ -738,6 +770,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                 {
                     //mBroadcastControlButton.setBackgroundResource(R.drawable.live_record_button);
                     triggerStopRecording();
+                    hideViewsCount();
                 }
             }
         }
@@ -782,7 +815,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             wrapperStreamSettings.setVisibility(View.VISIBLE);
             fabContainer.setVisibility(View.VISIBLE);
         }
-
+        hideViewsCount();
         mIsRecording = false;
     }
 
