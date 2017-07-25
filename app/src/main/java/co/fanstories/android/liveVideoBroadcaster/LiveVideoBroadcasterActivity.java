@@ -867,6 +867,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         this.mElapsedTime = 0;
     }
 
+    /** Set camera resolution for broadcaster **/
+
     public void setResolution(Resolution size) {
         mLiveVideoBroadcaster.setResolution(size);
     }
