@@ -25,6 +25,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -322,14 +324,16 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         fabLogout.animate().translationY(0);
     }
 
+    /** Retrieve names for scrolling page selection **/
     public List<Icon> retrievePageScrollNames(List<String> iconN) {
-
         for (int i = 0; i < iconN.size(); i++) {
             iconList.add(new Icon(R.drawable.img1, iconN.get(i).toString()));
         }
 
         return iconList;
     }
+
+    /** Retrieve and set user page names for scrolling selector **/
 
     private void initializeScrollItems() {
         PageGateway pageGateway1 = new PageGateway(getApplicationContext());
@@ -341,28 +345,34 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                     arrayListPageNames = Pages.Page.fetchPageNames(response);
                     initializeScrollView(arrayListPageNames);
                 }
-
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.pages_list_item, arrayListPageNames);
-                //pagesSpinner.setAdapter(arrayAdapter);
             }
         });
 
     }
+
+    /** Initialize scrolling selector **/
 
     private void initializeScrollView(List<String> iconNames) {
         horizontalAdapter = new HorizontalAdapter(retrievePageScrollNames(iconNames), getApplicationContext(), this);
 
         horizontal_recycler_view= (RecyclerView) findViewById(R.id.horizontal_recycler_view);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(LiveVideoBroadcasterActivity.this, LinearLayoutManager.HORIZONTAL, false);
+
+        LinearSnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(horizontal_recycler_view);
         horizontal_recycler_view.setLayoutManager(horizontalLayoutManager);
         horizontal_recycler_view.setAdapter(horizontalAdapter);
     }
+
+    /** Retrieve selected page from icon click **/
 
     @Override
     public void setSelectedPage(String selectedPage) {
         viewClickedPage = selectedPage;
         retrieveSelectedPageDetails();
     }
+
+    /** Retrieve selected page details from JSONArray **/
 
     public void retrieveSelectedPageDetails() {
         PageGateway pageGateway = new PageGateway(getApplicationContext());
@@ -380,6 +390,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             }
         });
     }
+
+    /** Confirm page selection and go live with selected page **/
 
     public void goLive() {
 
@@ -432,15 +444,21 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         }
     }
 
+    /** Reset button view configuration to default **/
+
     public void resetButtons() {
         mBroadcastControlButton.setVisibility(View.VISIBLE);
         mStopBroadcast.setVisibility(View.GONE);
     }
 
+    /** Set button view configuration to recording buttons **/
+
     public void recordingButtons() {
         mBroadcastControlButton.setVisibility(View.GONE);
         mStopBroadcast.setVisibility(View.VISIBLE);
     }
+
+    /** Expand the scroll view by translating up **/
 
     public void expandPageScrollView() {
         if (scrollViewExpanded == false) {
@@ -449,6 +467,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             scrollViewExpanded = true;
         }
     }
+
+    /** Collapse scroll view by translating down **/
 
     public void collapsePageScrollView() {
         if (scrollViewExpanded == true) {
@@ -542,6 +562,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         mLiveFBMessageText.setEnabled(false);
     }
 
+    /** Share broadcast link to facebook via post **/
+
     public void share() {
         mLiveSendProgressBar.setVisibility(View.VISIBLE);
         mLiveFBMessageSendButton.setVisibility(View.GONE);
@@ -599,6 +621,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         //this lets activity bind
         bindService(mLiveVideoBroadcasterServiceIntent, mConnection, 0);
     }
+
+    /** Handle necessary permissions for broadcasting from user  **/
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -662,6 +686,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         //unbindService(mConnection);
     }
 
+    /** On camera oreintation changed **/
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -694,6 +720,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         }
 
     }
+
+    /** Turn on/off broadcasting **/
 
     public void toggleBroadcasting(View v) {
         if (isLivePrepared) {
@@ -769,17 +797,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         }
     }
 
+    /** Stop recording and reset to selection menu **/
 
     public void triggerStopRecording() {
-        /*if (wrapperPageSpinner.getVisibility() == View.VISIBLE) {
-            mBroadcastControlButton.setVisibility(View.VISIBLE);
-        }*/
-
-        /*if (wrapperVideoScroll.getVisibility() == View.VISIBLE) {
-            mBroadcastControlButton.setVisibility((View.VISIBLE));
-        }*/
         if (mIsRecording) {
-            //mBroadcastControlButton.setText(R.string.start_broadcasting);
 
             mStreamLiveStatus.setVisibility(View.GONE);
             mStreamLiveStatus.setText(R.string.live_indicator);
@@ -806,16 +827,15 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             isCountdownFinished = false;
             mLiveVideoBroadcaster.stopBroadcasting();
             expandPageScrollView();
-            //wrapperVideoScroll.setVisibility(View.VISIBLE);
             wrapperShareAndStream.setVisibility(View.GONE);
             wrapperStreamSettings.setVisibility(View.VISIBLE);
         }
-        //Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-        //startActivity(intent);
+
         mIsRecording = false;
     }
 
-    //This method starts a mTimer and updates the textview to show elapsed time for recording
+    /** Starts timer and updates textview to show elapsed recording time **/
+
     public void startTimer() {
 
         if(mTimer == null) {
@@ -836,6 +856,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         }, 0, 1000);
     }
 
+    /** Stops the elapsed recording time timer **/
 
     public void stopTimer()
     {
@@ -903,7 +924,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void onBackPressed() {
         triggerStopRecording();
         expandPageScrollView();
-        horizontalAdapter.notifyDataSetChanged();
         mBroadcastControlButton.setVisibility(View.VISIBLE);
         mStopBroadcast.setVisibility(View.GONE);
     }
