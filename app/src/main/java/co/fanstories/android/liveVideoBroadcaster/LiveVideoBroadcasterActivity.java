@@ -86,7 +86,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private String blogUrl;
     private String pageId;
 
-    private LinearLayout wrapperShareAndStream;
+    private RelativeLayout wrapperShareAndStream;
     private LinearLayout wrapperStreamSettings;
     private RelativeLayout fabContainer;
     private LinearLayout wrapperVideoScroll;
@@ -179,7 +179,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         mRootView = (ViewGroup)findViewById(R.id.root_layout);
         mSettingsButton = (ImageButton)findViewById(R.id.settings_button);
         mStreamLiveStatus = (TextView) findViewById(R.id.stream_live_status);
-        wrapperShareAndStream = (LinearLayout) findViewById(R.id.wrapperShareAndStream);
+        wrapperShareAndStream = (RelativeLayout) findViewById(R.id.wrapperShareAndStream);
         wrapperStreamSettings = (LinearLayout) findViewById(R.id.wrapperStreamSettings);
         wrapperShareLink = (RelativeLayout) findViewById(R.id.wrapperShareLink);
         fabContainer = (RelativeLayout) findViewById(R.id.fabContainer);
@@ -240,7 +240,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         liveGateway = new LiveGateway(getApplicationContext());
 
-        //initFAB();
+        initFAB();
 
         initializeScrollItems();
         /*pagesSpinner = (Spinner) findViewById(R.id.pagesSpinner);
@@ -293,7 +293,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                     @Override
                     public void onError(boolean isError) {
                         //Snackbar.make(coordinatorLayout, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
-                        //Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -316,7 +316,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
     private void showFabMenu() {
         isFabOpen = true;
-        fabLogout.animate().translationY(-getResources().getDimension(R.dimen.fab_logout_position));
+        fabLogout.animate().translationY(getResources().getDimension(R.dimen.fab_logout_position));
     }
 
     private void hideFabMenu() {
@@ -325,9 +325,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     }
 
     /** Retrieve names for scrolling page selection **/
+
     public List<Icon> retrievePageScrollNames(List<String> iconN) {
         for (int i = 0; i < iconN.size(); i++) {
-            iconList.add(new Icon(R.drawable.img1, iconN.get(i).toString()));
+            iconList.add(new Icon(iconN.get(i).toString()));
         }
 
         return iconList;
@@ -449,6 +450,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void resetButtons() {
         mBroadcastControlButton.setVisibility(View.VISIBLE);
         mStopBroadcast.setVisibility(View.GONE);
+        fabContainer.setVisibility(View.VISIBLE);
     }
 
     /** Set button view configuration to recording buttons **/
@@ -456,6 +458,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void recordingButtons() {
         mBroadcastControlButton.setVisibility(View.GONE);
         mStopBroadcast.setVisibility(View.VISIBLE);
+        fabContainer.setVisibility(View.GONE);
     }
 
     /** Expand the scroll view by translating up **/
@@ -758,6 +761,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             expandPageScrollView();
             wrapperShareAndStream.setVisibility(View.GONE);
             wrapperStreamSettings.setVisibility(View.VISIBLE);
+            fabContainer.setVisibility(View.VISIBLE);
         }
 
         else {
@@ -773,6 +777,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             expandPageScrollView();
             wrapperShareAndStream.setVisibility(View.GONE);
             wrapperStreamSettings.setVisibility(View.VISIBLE);
+            fabContainer.setVisibility(View.VISIBLE);
         }
 
         mIsRecording = false;
@@ -810,8 +815,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         this.mTimer = null;
         this.mElapsedTime = 0;
     }
-
-    /** Set camera resolution for broadcaster **/
 
     public void setResolution(Resolution size) {
         mLiveVideoBroadcaster.setResolution(size);
