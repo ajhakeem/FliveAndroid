@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import co.fanstories.android.authentication.LoginActivity;
 import co.fanstories.android.R;
+import co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
 import co.fanstories.android.user.Token;
 import co.fanstories.android.user.User;
 
@@ -45,7 +46,7 @@ public class SplashActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                 /* Create an Intent that will start the Menu-Activity. */
-                    Intent mainIntent = new Intent(SplashActivity.this, HomeActivity.class);
+                    Intent mainIntent = new Intent(SplashActivity.this, LiveVideoBroadcasterActivity.class);
                     SplashActivity.this.startActivity(mainIntent);
                     SplashActivity.this.finish();
                 }

@@ -1,0 +1,35 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- outer circle -->
+    <item android:height="80dp" android:width="80dp" android:gravity="center">
+        <shape
+            android:shape="oval">
+
+            <solid
+                android:color="#c6c6c6"/>
+
+            <gradient
+                android:startColor="#c6c6c6"
+                android:angle="45"/>
+
+        </shape>
+    </item>
+
+
+    <!-- inner circle -->
+    <item android:height="60dp" android:width="60dp" android:gravity="center">
+        <shape
+            android:shape="oval"  >
+
+            <solid
+                android:color="#c60000"
+                />
+
+            <gradient
+                android:startColor="#ff4242"
+                android:angle="225"
+                android:endColor="#c60000"
+                />
+
+        </shape>
+    </item>
+</layer-list>

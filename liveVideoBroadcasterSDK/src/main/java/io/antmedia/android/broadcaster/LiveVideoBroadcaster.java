@@ -168,6 +168,7 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         // thread, so we know the fully-constructed object will be visible.
         mRenderer = new CameraSurfaceRenderer(mCameraHandler, sVideoEncoder);
         mGLView = glView;
+        mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(mRenderer);
         mGLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
