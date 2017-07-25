@@ -38,12 +38,12 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     public class IconViewHolder extends RecyclerView.ViewHolder {
 
         RelativeLayout iconView;
-        ImageView imageView;
+        //ImageView imageView;
         TextView txtview;
 
         public IconViewHolder(View view) {
             super(view);
-            imageView = (ImageView) view.findViewById(R.id.imageview);
+            //imageView = (ImageView) view.findViewById(R.id.imageview);
             txtview = (TextView) view.findViewById(R.id.txtview);
             iconView = (RelativeLayout) view.findViewById(R.id.iconView);
         }
@@ -59,7 +59,7 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     /** Set individual icon contents, handle highlights on click **/
     @Override
     public void onBindViewHolder(final IconViewHolder holder, final int position) {
-        holder.imageView.setImageResource(horizontalList.get(position).imageId);
+        //holder.imageView.setImageResource(horizontalList.get(position).imageId);
         holder.txtview.setText(horizontalList.get(position).txt);
 
         if (selectedPos == position) {

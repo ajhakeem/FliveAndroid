@@ -67,22 +67,21 @@
         android:textSize="100dp"
         android:textColor="#90c60000" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/wrapperShareAndStream"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_alignParentBottom="true"
         android:orientation="vertical"
         android:visibility="gone"
-        android:padding="24dp">
+        android:layout_below="@id/wrapperStreamSettings">
 
         <RelativeLayout
             android:id="@+id/wrapperShareToFacebook"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="50dp">
+            android:layout_marginLeft="5dp">
 
             <ImageView
                 android:id="@+id/live_fb_logo"
@@ -130,18 +129,7 @@
                 android:visibility="gone" />
 
         </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical"
-            android:padding="5dp"
-            android:minHeight="40dp"
-            android:visibility="visible">
-
-        </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tvWebsocketMessage"
@@ -155,15 +143,15 @@
         android:id="@+id/rlHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#00000000"
-        android:layout_centerInParent="true">
+        android:background="#00000000" >
 
         <RelativeLayout
             android:id="@+id/fabContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:gravity="bottom|right" >
+            android:visibility="visible"
+            android:gravity="right|top"
+            android:layout_marginBottom="130dp">
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_logout"
@@ -200,14 +188,14 @@
     <LinearLayout
         android:id="@+id/wrapperPageScroll"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         >
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/horizontal_recycler_view"
-            android:background="#20FFFFFF"
+            android:background="#dbdbdb"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />
