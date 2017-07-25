@@ -21,6 +21,15 @@ import java.util.HashMap;
 public class Pages {
     public static final String TAG = "Pages";
 
+    public HashMap<String, Page> getPagesMap(JSONArray jsonArray) throws JSONException {
+        HashMap<String, Page> pagesMap = new HashMap<>();
+        for (int i = 0; i< jsonArray.length(); i++) {
+            Page page = new Page(jsonArray.getJSONObject(i));
+            pagesMap.put(page.id, page);
+        }
+        return pagesMap;
+    }
+
     public static class Page {
         public String name;
         public String id;
