@@ -164,7 +164,6 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="@dimen/fab_margin"
                 app:srcCompat="@mipmap/ic_logout"
-                android:backgroundTint="#bc1616"
                 android:tint="#FFF"/>
 
             <android.support.design.widget.FloatingActionButton
@@ -174,7 +173,6 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="@dimen/fab_margin"
                 app:srcCompat="@mipmap/ic_burger_menu"
-                android:backgroundTint="#bc1616"
                 android:tint="#FFF"/>
 
         </RelativeLayout>

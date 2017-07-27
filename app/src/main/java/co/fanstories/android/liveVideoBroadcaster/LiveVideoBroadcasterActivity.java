@@ -820,6 +820,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             fabContainer.setVisibility(View.VISIBLE);
         }
         hideViewsCount();
+        initializeViewsCount();
         mIsRecording = false;
     }
 
