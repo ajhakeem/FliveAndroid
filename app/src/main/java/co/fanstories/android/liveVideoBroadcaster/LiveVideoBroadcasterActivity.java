@@ -28,6 +28,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -109,6 +110,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private TextView viewsCount;
     Long totalViewsCount;
 
+    DisplayMetrics displayMetrics;
+    Resolution detectedResolution;
+    CameraResolutionInterface cameraResolutionInterface;
+
     private WebSocketClient mWebSocketClient;
 
     private Timer mTimer;
@@ -116,7 +121,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private long mElapsedTime;
     int fb_logo_click_counter = 0;
 
-    private static int viewCount;
     private boolean isConnecting = false;
     boolean mIsRecording = false;
     private boolean scrollViewExpanded = true;
@@ -250,23 +254,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         liveGateway = new LiveGateway(getApplicationContext());
 
+
         initFAB();
         hideViewsCount();
         initializeScrollItems();
-        /*pagesSpinner = (Spinner) findViewById(R.id.pagesSpinner);
-
-        pagesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                spinnerSelectedPage = pagesSpinner.getSelectedItem().toString();
-                retrieveSelectedPageDetails();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });*/
 
         recordCountdownTimer = new CountDownTimer(5050, 1000) {
             @Override
@@ -284,10 +275,11 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         };
 
+        //getScreenResolution();
     }
 
     public void initializeViewsCount() {
-         totalViewsCount = 0L;
+        totalViewsCount = 0L;
     }
 
     public void hideViewsCount() {
@@ -316,8 +308,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
                     @Override
                     public void onError(boolean isError) {
-                        //Snackbar.make(coordinatorLayout, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
-                        //Snackbar.make(rlHomeView, "Could not log you out.", Snackbar.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Could not log you out", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -368,6 +359,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             public void onSuccess(JSONArray response) throws JSONException {
                 if (response.length() > 0) {
                     arrayListPageNames = Pages.Page.fetchPageNames(response);
+                    hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
                     initializeScrollView(arrayListPageNames);
                 }
             }
@@ -394,12 +386,13 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     @Override
     public void setSelectedPage(String selectedPage) {
         viewClickedPage = selectedPage;
-        retrieveSelectedPageDetails();
+        selectedLivePage = hashMapPageDetails.get(viewClickedPage);
+        //retrieveSelectedPageDetails();
     }
 
     /** Retrieve selected page details from JSONArray **/
 
-    public void retrieveSelectedPageDetails() {
+    /*public void retrieveSelectedPageDetails() {
         PageGateway pageGateway = new PageGateway(getApplicationContext());
         final HashMap<String, String> hashMap = new HashMap<>();
 
@@ -411,10 +404,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                 }
 
                 selectedLivePage = hashMapPageDetails.get(viewClickedPage);
-                System.out.println(selectedLivePage);
             }
         });
-    }
+
+    }*/
 
     /** Confirm page selection and go live with selected page **/
 
@@ -501,7 +494,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void collapsePageScrollView() {
         if (scrollViewExpanded == true) {
             wrapperVideoScroll.animate().translationY(800);
-            wrapperButtons.animate().translationY(360);
+            wrapperButtons.animate().translationY(400);
             scrollViewExpanded = false;
         }
     }
@@ -510,8 +503,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void onClick(View v) {
         if (v == mBroadcastControlButton) {
             goLive();
-            //mBroadcastControlButton.setVisibility(View.GONE);
-            //mStopBroadcast.setVisibility(View.VISIBLE);
         }
 
         if (v == live_fb_logo) {
@@ -649,7 +640,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         if (mCameraResolutionsDialog != null && mCameraResolutionsDialog.isVisible()) {
             mCameraResolutionsDialog.dismiss();
         }
-        //mLiveVideoBroadcaster.pause();
     }
 
     @Override
@@ -665,10 +655,25 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         super.onConfigurationChanged(newConfig);
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                mLiveVideoBroadcaster.setDisplayOrientation();
+            mLiveVideoBroadcaster.setDisplayOrientation();
         }
 
     }
+
+    /*public void getScreenResolution() {
+        displayMetrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+
+        int deviceHeight = displayMetrics.heightPixels;
+        int deviceWidth = displayMetrics.widthPixels;
+        detectedResolution = new Resolution(deviceWidth, deviceHeight);
+
+        ArrayList<Resolution> sizeList = new ArrayList<>();
+        sizeList = mLiveVideoBroadcaster.getPreviewSizeList();
+        mCameraResolutionsDialog = new CameraResolutionsFragment();
+        mCameraResolutionsDialog.setCameraResolutions(sizeList, detectedResolution);
+    }*/
 
     public void showSetResolutionDialog(View v) {
 
@@ -729,7 +734,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                                         mStreamLiveStatus.setVisibility(View.VISIBLE);
                                         isLiveFBMessageSendButtonEnabled = true;
                                         isConnecting = false;
-                                        //mBroadcastControlButton.setBackgroundResource(R.drawable.live_stop_button);
                                         mSettingsButton.setVisibility(View.GONE);
                                         startTimer();//start the recording duration
                                     }
@@ -768,7 +772,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                 }
                 else
                 {
-                    //mBroadcastControlButton.setBackgroundResource(R.drawable.live_record_button);
                     triggerStopRecording();
                     hideViewsCount();
                 }
@@ -776,7 +779,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         }
 
         else {
-            retrieveSelectedPageDetails();
+            initializeScrollItems();
+            //retrieveSelectedPageDetails();
         }
     }
 

@@ -27,7 +27,7 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     List<Icon> horizontalList = Collections.emptyList();
     Context context;
     SelectedPageInterface selectedPageInterface;
-    int selectedPos;
+    int selectedPos = -1;
 
 
     public HorizontalAdapter(List<Icon> horizontalList, Context context, SelectedPageInterface selectedPageInterface) {
@@ -64,9 +64,15 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
         //holder.imageView.setImageResource(horizontalList.get(position).imageId);
         holder.txtview.setText(horizontalList.get(position).txt);
 
-        if (selectedPos == position) {
+        if (position == 0 && selectedPos == -1) {
+            holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background, null));
+        }
+
+        else if (selectedPos == position) {
             holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background_selected, null));
-        } else {
+        }
+
+        else {
             holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background, null));
         }
 

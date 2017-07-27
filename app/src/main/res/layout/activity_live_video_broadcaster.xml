@@ -74,13 +74,14 @@
         android:layout_below="@id/wrapperStreamSettings"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/wrapperShareToFacebook"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="left"
+            android:layout_marginLeft="5dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp">
 
@@ -114,8 +115,9 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_alignEnd="@+id/live_fb_share_link_message"
+                    android:layout_toEndOf="@id/live_fb_share_link_message"
                     android:background="@drawable/live_share_button_enabled"
+                    android:backgroundTint="#bc1616"
                     android:drawableStart="@drawable/ic_send_24dp"
                     android:paddingLeft="10dp"
                     android:layout_marginStart="10dp"
@@ -162,6 +164,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="@dimen/fab_margin"
                 app:srcCompat="@mipmap/ic_logout"
+                android:backgroundTint="#bc1616"
                 android:tint="#FFF"/>
 
             <android.support.design.widget.FloatingActionButton
@@ -171,6 +174,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="@dimen/fab_margin"
                 app:srcCompat="@mipmap/ic_burger_menu"
+                android:backgroundTint="#bc1616"
                 android:tint="#FFF"/>
 
         </RelativeLayout>
@@ -190,7 +194,7 @@
     <RelativeLayout
         android:id="@+id/wrapperPageScroll"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="120dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:background="#9095a0"
@@ -200,7 +204,7 @@
             android:id="@+id/tvBlogSelect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:textSize="15dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
