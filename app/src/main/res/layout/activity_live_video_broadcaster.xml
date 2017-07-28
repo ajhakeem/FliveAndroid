@@ -208,7 +208,7 @@
             android:textSize="15dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:text="Select a blog and press record to go live"
+            android:text="@string/loading_blog_scroll_view"
             android:textColor="#FFFFFF"/>
 
         <android.support.v7.widget.RecyclerView
@@ -225,7 +225,8 @@
         android:id="@+id/wrapperButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/wrapperPageScroll">
+        android:layout_above="@id/wrapperPageScroll"
+        android:visibility="gone">
 
         <Button
             android:id="@+id/toggle_broadcasting"

@@ -108,6 +108,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private ImageView live_fb_logo;
     private ImageButton viewsIcon;
     private TextView viewsCount;
+    private TextView tvBlogSelect;
     Long totalViewsCount;
 
     DisplayMetrics displayMetrics;
@@ -139,7 +140,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
     private LiveGateway liveGateway;
 
-    private LinearLayout mLiveFBShareLayout;
     private EditText mLiveFBMessageText;
     private Button mLiveFBMessageSendButton;
     private ProgressBar mLiveSendProgressBar;
@@ -197,6 +197,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         wrapperVideoScroll = (RelativeLayout) findViewById(R.id.wrapperPageScroll);
         wrapperButtons = (RelativeLayout) findViewById(R.id.wrapperButtons);
         tvCountdownTimer = (TextView) findViewById(R.id.tvCountdownTimer);
+        tvBlogSelect = (TextView) findViewById(R.id.tvBlogSelect);
 
         live_fb_logo = (ImageView) findViewById(R.id.live_fb_logo);
         live_fb_logo.setOnClickListener(this);
@@ -254,6 +255,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         liveGateway = new LiveGateway(getApplicationContext());
 
+        wrapperButtons.setVisibility(View.GONE);
 
         initFAB();
         hideViewsCount();
@@ -370,7 +372,9 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     /** Initialize scrolling selector **/
 
     private void initializeScrollView(List<String> iconNames) {
+        tvBlogSelect.setText(getResources().getString(R.string.select_blog_to_go_live));
         horizontalAdapter = new HorizontalAdapter(retrievePageScrollNames(iconNames), getApplicationContext(), this);
+        wrapperButtons.setVisibility(View.VISIBLE);
 
         horizontal_recycler_view= (RecyclerView) findViewById(R.id.horizontal_recycler_view);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(LiveVideoBroadcasterActivity.this, LinearLayoutManager.HORIZONTAL, false);
@@ -389,25 +393,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         selectedLivePage = hashMapPageDetails.get(viewClickedPage);
         //retrieveSelectedPageDetails();
     }
-
-    /** Retrieve selected page details from JSONArray **/
-
-    /*public void retrieveSelectedPageDetails() {
-        PageGateway pageGateway = new PageGateway(getApplicationContext());
-        final HashMap<String, String> hashMap = new HashMap<>();
-
-        pageGateway.getPages(hashMap, new Callback() {
-            @Override
-            public void onSuccess(JSONArray response) throws JSONException {
-                if (response.length() > 0) {
-                    hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
-                }
-
-                selectedLivePage = hashMapPageDetails.get(viewClickedPage);
-            }
-        });
-
-    }*/
 
     /** Confirm page selection and go live with selected page **/
 

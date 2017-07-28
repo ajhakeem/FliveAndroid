@@ -48,10 +48,6 @@
         <activity
             android:name="co.fanstories.android.MenuActivity"
             android:label="@string/title_activity_menu" />
-        <activity
-            android:name="co.fanstories.android.HomeActivity"
-            android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

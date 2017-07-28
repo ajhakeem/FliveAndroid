@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -16,7 +15,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -35,22 +33,15 @@ import com.android.volley.VolleyError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import co.fanstories.android.HomeActivity;
-import co.fanstories.android.MainActivity;
 import co.fanstories.android.http.Callback;
-import co.fanstories.android.http.Http;
 import co.fanstories.android.R;
 import co.fanstories.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
 import co.fanstories.android.user.Token;
 import co.fanstories.android.user.User;
 import co.fanstories.android.utils.json.JSONUtils;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
