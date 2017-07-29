@@ -290,8 +290,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     }
 
     public void showViewsCount() {
-        viewsCount.setVisibility(View.VISIBLE);
-        viewsIcon.setVisibility(View.VISIBLE);
+//        viewsCount.setVisibility(View.VISIBLE);
+//        viewsIcon.setVisibility(View.VISIBLE);
     }
 
     public void initFAB() {
