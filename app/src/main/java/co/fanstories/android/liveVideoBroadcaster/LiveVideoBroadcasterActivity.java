@@ -7,7 +7,9 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -299,7 +301,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
     public void initFAB() {
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+
         fabLogout = (FloatingActionButton) findViewById(R.id.fab_logout);
+        fabLogout.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         fabLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
