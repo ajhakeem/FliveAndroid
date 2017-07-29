@@ -70,6 +70,7 @@ import co.fanstories.android.authentication.LoginActivity;
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.live.LiveGateway;
 import co.fanstories.android.live.StreamViews;
+import co.fanstories.android.pageScrollView.IconItemDecoration;
 import co.fanstories.android.pageScrollView.SelectedPageInterface;
 import co.fanstories.android.pages.PageGateway;
 import co.fanstories.android.pages.Pages;
@@ -379,11 +380,13 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         wrapperButtons.setVisibility(View.VISIBLE);
 
         horizontal_recycler_view= (RecyclerView) findViewById(R.id.horizontal_recycler_view);
+        IconItemDecoration iconItemDecoration = new IconItemDecoration(25);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(LiveVideoBroadcasterActivity.this, LinearLayoutManager.HORIZONTAL, false);
 
         LinearSnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(horizontal_recycler_view);
         horizontal_recycler_view.setLayoutManager(horizontalLayoutManager);
+        horizontal_recycler_view.addItemDecoration(iconItemDecoration);
         horizontal_recycler_view.setAdapter(horizontalAdapter);
     }
 
@@ -781,6 +784,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             mStreamLiveStatus.setText(R.string.live_indicator);
             mSettingsButton.setVisibility(View.VISIBLE);
 
+            mPingJob.cancel(true);
+            mWebSocketClient.close();
             stopTimer();
             recordCountdownTimer.cancel();
             tvCountdownTimer.setText("");
@@ -807,8 +812,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             wrapperStreamSettings.setVisibility(View.VISIBLE);
             fabContainer.setVisibility(View.VISIBLE);
         }
-        mPingJob.cancel(true);
-        mWebSocketClient.close();
+
         hideViewsCount();
         initializeViewsCount();
         mIsRecording = false;

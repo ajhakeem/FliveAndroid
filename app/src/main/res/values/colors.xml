@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#bc000a</color>
     <color name="colorAccent">#ff0006</color>
     <color name="channelScrollSelect">#40d60000</color>
+    <color name="selectedText">#FFFFFF</color>
+    <color name="unselectedText">#999999</color>
+    <color name="shadowGray">#7c7c7c</color>
 </resources>

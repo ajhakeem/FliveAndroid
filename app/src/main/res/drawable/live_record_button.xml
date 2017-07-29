@@ -21,13 +21,7 @@
             android:shape="oval"  >
 
             <solid
-                android:color="#c60000"
-                />
-
-            <gradient
-                android:startColor="#ff4242"
-                android:angle="225"
-                android:endColor="#c60000"
+                android:color="#e20000"
                 />
 
         </shape>

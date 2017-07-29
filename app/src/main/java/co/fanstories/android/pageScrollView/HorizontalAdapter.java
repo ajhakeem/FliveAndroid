@@ -66,14 +66,17 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
 
         if (position == 0 && selectedPos == -1) {
             holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background, null));
+            holder.txtview.setTextColor(context.getResources().getColor(R.color.unselectedText));
         }
 
         else if (selectedPos == position) {
             holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background_selected, null));
+            holder.txtview.setTextColor(context.getResources().getColor(R.color.selectedText));
         }
 
         else {
             holder.iconView.setBackground(context.getResources().getDrawable(R.drawable.page_select_background, null));
+            holder.txtview.setTextColor(context.getResources().getColor(R.color.unselectedText));
         }
 
         holder.iconView.setOnClickListener(new View.OnClickListener() {
