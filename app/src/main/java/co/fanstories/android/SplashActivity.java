@@ -41,7 +41,7 @@ public class SplashActivity extends AppCompatActivity {
         Log.d("Token present", token.present().toString());
         if(token.present()) {
             User user = new User(token);
-            Toast.makeText(getApplicationContext(), "Welcome back" + user.getEmail(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Welcome back" + user.getEmail(), Toast.LENGTH_SHORT).show();
             new Handler().postDelayed(new Runnable(){
                 @Override
                 public void run() {

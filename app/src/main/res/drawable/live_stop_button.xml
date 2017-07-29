@@ -1,6 +1,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
     <!-- outer circle -->
-    <item android:height="80dp" android:width="80dp" android:gravity="center">
+    <item android:height="65dp" android:width="65dp" android:gravity="center">
         <shape
             android:shape="oval">
 

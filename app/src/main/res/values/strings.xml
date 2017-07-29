@@ -17,7 +17,8 @@
     <string name="microphone_permission_is_required">Microphone permission is required to run this app</string>
     <string name="permission">Permission</string>
     <string name="app_doesnot_work_without_permissions">App does not work without permissions. Please give Camera and Record Audio permission on app settings</string>
-
+    <string name="select_blog_to_go_live">Select a blog and press record to go live</string>
+    <string name="loading_blog_scroll_view">Loading blogs...</string>
     <string name="server_root_url">https://testapi.fbfanadnetwork.com</string>
 
     <string name="video">Video</string>
