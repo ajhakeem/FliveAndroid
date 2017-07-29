@@ -3,7 +3,10 @@ package co.fanstories.android.live;
 import android.content.Context;
 import android.telecom.Call;
 import android.util.Log;
+
+import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
@@ -11,6 +14,11 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import co.fanstories.android.http.Callback;
 import co.fanstories.android.http.Get;
@@ -90,15 +98,49 @@ public class LiveGateway {
 
             @Override
             public void onClose(int code, String reason, boolean remote) {
-                Log.d(TAG, "Closed");}
+                Log.d(TAG, "Closed");
+            }
 
             @Override
+            public void onWebsocketPong(WebSocket conn, Framedata f) {
+                Log.d(TAG, String.valueOf(f.getOpcode()));
+            }
+
+                @Override
             public void onError(Exception ex) {
                 Log.d(TAG, "Websocket: " + ex.getMessage());
             }
         };
 
         return webSocketClient;
+    }
+
+    public void sendPing(WebSocketClient client) {
+        Log.d(TAG, "Sending ping");
+        final int opCode = 0x9;
+        byte[] bytes = new byte[]{(byte) opCode};
+        client.send(bytes);
+    }
+
+    public ScheduledFuture setupPing(WebSocketClient websocketClient) {
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        ScheduledFuture scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Pinger(this, websocketClient), 0, 30, TimeUnit.SECONDS);
+        return scheduledFuture;
+    }
+
+    private class Pinger implements Runnable {
+        private LiveGateway liveGateway;
+        private WebSocketClient websocketClient;
+
+        Pinger(LiveGateway liveGateway, WebSocketClient websocketClient) {
+            this.liveGateway = liveGateway;
+            this.websocketClient = websocketClient;
+        }
+
+        @Override
+        public void run() {
+            liveGateway.sendPing(websocketClient);
+        }
     }
 }
 

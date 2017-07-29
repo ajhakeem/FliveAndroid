@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
 
 import co.fanstories.android.authentication.AuthGateway;
 import co.fanstories.android.authentication.LoginActivity;
@@ -116,6 +117,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     CameraResolutionInterface cameraResolutionInterface;
 
     private WebSocketClient mWebSocketClient;
+    ScheduledFuture mPingJob;
 
     private Timer mTimer;
     public TimerHandler mTimerHandler;
@@ -290,8 +292,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     }
 
     public void showViewsCount() {
-//        viewsCount.setVisibility(View.VISIBLE);
-//        viewsIcon.setVisibility(View.VISIBLE);
+        viewsCount.setVisibility(View.VISIBLE);
+        viewsIcon.setVisibility(View.VISIBLE);
     }
 
     public void initFAB() {
@@ -740,6 +742,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                                     }
                                 });
                                 mWebSocketClient.connect();
+                                mPingJob = liveGateway.setupPing(mWebSocketClient);
                                 showViewsCount();
                             }
 
@@ -804,6 +807,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             wrapperStreamSettings.setVisibility(View.VISIBLE);
             fabContainer.setVisibility(View.VISIBLE);
         }
+        mPingJob.cancel(true);
+        mWebSocketClient.close();
         hideViewsCount();
         initializeViewsCount();
         mIsRecording = false;
