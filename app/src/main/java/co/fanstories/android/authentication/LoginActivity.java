@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -61,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
     private CheckBox mCheckBox;
-    private TextView mTerms, mPrivacy;
+    private TextView tvTermsAndPolicies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,10 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         mCheckBox = (CheckBox) findViewById(R.id.check_above_18);
+        tvTermsAndPolicies = (TextView) findViewById(R.id.tvTermsAndPolicies);
+        tvTermsAndPolicies.setText(Html.fromHtml("I have read and agree to the " + "<a href=\"https://www.fanstories.co/terms.html\">Terms of Use</a> " + "<a href=\"https://www.fanstories.co/privacy.html\">Privacy Policy</a>"));
+        tvTermsAndPolicies.setClickable(true);
+        tvTermsAndPolicies.setMovementMethod(LinkMovementMethod.getInstance());
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -95,11 +100,11 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        mTerms = (TextView) findViewById(R.id.login_terms);
-        mTerms.setMovementMethod(LinkMovementMethod.getInstance());
+        //mTerms = (TextView) findViewById(R.id.login_terms);
+        //mTerms.setMovementMethod(LinkMovementMethod.getInstance());
 
-        mPrivacy = (TextView) findViewById(R.id.login_privacy);
-        mPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
+        //mPrivacy = (TextView) findViewById(R.id.login_privacy);
+        //mPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     /**

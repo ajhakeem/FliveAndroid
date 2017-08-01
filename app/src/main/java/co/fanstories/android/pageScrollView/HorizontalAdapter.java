@@ -3,6 +3,7 @@ package co.fanstories.android.pageScrollView;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     Context context;
     SelectedPageInterface selectedPageInterface;
     int selectedPos = -1;
+    DisplayMetrics displayMetrics;
 
 
     public HorizontalAdapter(List<Icon> horizontalList, Context context, SelectedPageInterface selectedPageInterface) {
@@ -54,7 +56,6 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     @Override
     public IconViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.icon_item, parent, false);
-
         return new IconViewHolder(itemView);
     }
 
@@ -88,7 +89,6 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
             }
         });
 
-
     }
 
     @Override
@@ -96,4 +96,5 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ic
     {
         return horizontalList.size();
     }
+
 }

@@ -1,25 +1,26 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Fan Stories</string>
-    <string name="live_indicator">on-air</string>
+    <string name="live_indicator">On-Air</string>
     <string name="start_broadcasting">Start Broadcasting</string>
     <string name="stream_name">Stream Name</string>
     <string name="nocamera">No camera exists in your device</string>
     <string name="camera_not_running_properly">Camera is not running properly</string>
     <string name="restart">Restart</string>
-    <string name="streaming_not_finished">Your previous broadcast still sends packets due to slow internet speed</string>
-    <string name="oopps_shouldnt_happen">Oopps this shouldn\'t be happened. Please let the library developer this status</string>
-    <string name="broadcast_connection_lost">Connection to media server is lost</string>
+    <string name="streaming_not_finished">Your previous broadcast is still sending packets due to slow internet speed</string>
+    <string name="oopps_shouldnt_happen">Oops, this shouldn\'t have happened! Please let the library developer know about this status</string>
+    <string name="broadcast_connection_lost">Connection to media server has been lost</string>
     <string name="low_bandwidth">Network speed is low. Latency is increasing.</string>
-    <string name="not_eligible_for_broadcast">Your device is not eligible to broadcast. There is no hardware encoder.</string>
-    <string name="no_network_connectivity">You\'re not connected to any network. Please connect to Internet</string>
+    <string name="not_eligible_for_broadcast">Your device is not eligible to broadcast; there is no hardware encoder</string>
+    <string name="no_network_connectivity">You\'re not connected to any network. Please connect to a network</string>
     <string name="stop_broadcasting">Stop</string>
     <string name="camera_permission_is_required">Camera permission is required to run this app</string>
     <string name="microphone_permission_is_required">Microphone permission is required to run this app</string>
     <string name="permission">Permission</string>
-    <string name="app_doesnot_work_without_permissions">App does not work without permissions. Please give Camera and Record Audio permission on app settings</string>
+    <string name="app_doesnot_work_without_permissions">App will not work without permissions. Please give Camera and Record Audio permissions on app settings</string>
     <string name="select_blog_to_go_live">Select a blog and press record to go live</string>
     <string name="loading_blog_scroll_view">Loading blogs...</string>
     <string name="server_root_url">https://testapi.fbfanadnetwork.com</string>
+    <string name="fb_share_message">Share \'I\'m live!\' to FB</string>
 
     <string name="video">Video</string>
 
@@ -77,15 +78,12 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_live">Live</string>
-    <string name="terms"><a href="https://app.fanstories.co/#/terms">Terms Of Use</a></string>
-    <string name="privacy"><a href="https://app.fanstories.co/#/privacy">Privacy Policy</a></string>
-    <string name="r_18">I\'m above 18 years old</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="live_broadcaster_test">Live Broadcaster Test</string>
     <string name="title_activity_home">Pages</string>
     <string name="fb_no_page">Looks like you do not have any Facebook pages. Make sure you have editing privileges in pages you manage.</string>
-    <string name="fb_no_account">You have not linked your Facebook account yet.</string>
+    <string name="fb_no_account">You have not linked your Facebook account yet</string>
     <string name="login_logo_description">Fan Stories Logo</string>
 
 </resources>

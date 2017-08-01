@@ -7,4 +7,5 @@
     <color name="selectedText">#FFFFFF</color>
     <color name="unselectedText">#999999</color>
     <color name="shadowGray">#7c7c7c</color>
+    <color name="recordRed">#e20000</color>
 </resources>
