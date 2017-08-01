@@ -15,8 +15,7 @@ public class IconItemDecoration extends RecyclerView.ItemDecoration {
     public IconItemDecoration(int space) {
         this.gapSpace = space;
     }
-
-
+    
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         outRect.left = gapSpace;

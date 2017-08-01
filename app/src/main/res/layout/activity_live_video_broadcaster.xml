@@ -22,6 +22,7 @@
         android:orientation="horizontal"
         android:visibility="visible"
         android:layout_alignParentStart="true">
+
         <ImageButton
             android:id="@+id/settings_button"
             android:layout_width="wrap_content"
@@ -29,6 +30,7 @@
             android:adjustViewBounds="true"
             android:onClick="showSetResolutionDialog"
             android:src="@drawable/ic_settings_white_24dp"
+            android:tint="@color/shadowGray"
             style="?borderlessButtonStyle"
             />
 
@@ -40,12 +42,14 @@
             android:adjustViewBounds="true"
             android:onClick="changeCamera"
             android:src="@drawable/ic_switch_camera_white_24dp"
+            android:tint="@color/shadowGray"
             />
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
+
         <TextView
             android:id="@+id/stream_live_status"
             android:layout_width="wrap_content"
@@ -91,14 +95,15 @@
                 android:layout_height="40dp"
                 android:clickable="true"
                 android:visibility="visible"
-                app:srcCompat="@mipmap/fb_logo" />
+                app:srcCompat="@mipmap/fblogo_blue_100" />
 
             <RelativeLayout
                 android:id="@+id/wrapperShareLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/live_fb_logo"
-                android:visibility="visible">
+                android:layout_alignTop="@id/live_fb_logo"
+                android:visibility="gone">
 
                 <EditText
                     android:id="@+id/live_fb_share_link_message"
@@ -106,8 +111,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:ems="10"
-                    android:hint="Share to facebook"
-                    android:inputType="textMultiLine"
+                    android:inputType="text"
+                    android:hint="@string/fb_share_message"
+                    android:textColorHint="@color/shadowGray"
+                    android:textColor="@color/shadowGray"
+                    android:imeOptions="actionDone"
+                    android:visibility="gone"
                     android:maxLines="3" />
 
                 <Button
@@ -117,11 +126,10 @@
                     android:layout_gravity="center_vertical"
                     android:layout_toEndOf="@id/live_fb_share_link_message"
                     android:background="@drawable/live_share_button_enabled"
-                    android:backgroundTint="#bc1616"
+                    android:backgroundTint="@color/colorPrimaryDark"
                     android:drawableStart="@drawable/ic_send_24dp"
                     android:paddingLeft="10dp"
-                    android:layout_marginStart="10dp"
-                    android:drawableTint="#FFF" />
+                    android:layout_marginStart="10dp" />
 
             </RelativeLayout>
 
@@ -130,6 +138,7 @@
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:visibility="gone" />
 
         </RelativeLayout>
@@ -209,7 +218,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center_horizontal"
             android:text="@string/loading_blog_scroll_view"
-            android:textColor="@color/unselectedText"/>
+            android:textColor="@color/shadowGray"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/horizontal_recycler_view"
@@ -217,6 +226,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_below="@id/tvBlogSelect"
+            android:clipToPadding="false"
             />
 
     </RelativeLayout>
@@ -262,6 +272,7 @@
         android:layout_toStartOf="@+id/tvCountdownTimer"
         android:background="@android:color/transparent"
         app:srcCompat="@android:drawable/ic_menu_view"
+        android:visibility="gone"
         />
 
     <TextView
@@ -271,6 +282,7 @@
         android:layout_alignBottom="@+id/wrapperStreamSettings"
         android:layout_marginBottom="16dp"
         android:layout_toEndOf="@+id/viewsIcon"
+        android:visibility="gone"
         android:text="0" />
 
 </RelativeLayout>

@@ -102,6 +102,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private ViewGroup mRootView;
 
     private ImageButton mSettingsButton;
+    private ImageButton changeCameraButton;
     private CameraResolutionsFragment mCameraResolutionsDialog;
     private Intent mLiveVideoBroadcasterServiceIntent;
     private TextView mStreamLiveStatus;
@@ -130,6 +131,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private boolean isConnecting = false;
     boolean mIsRecording = false;
     private boolean scrollViewExpanded = true;
+    private boolean shareLinkExpanded = false;
     private boolean isLiveFBMessageSendButtonEnabled = false;
     private boolean isLivePrepared = false;
     private boolean isCountdownFinished = false;
@@ -142,6 +144,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public RecyclerView horizontal_recycler_view;
     public HorizontalAdapter horizontalAdapter;
     List<Icon> iconList = new ArrayList<>();
+    static int selectedPagePosition;
 
     private LiveGateway liveGateway;
 
@@ -192,8 +195,9 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         mTimerHandler = new TimerHandler();
 
-        mRootView = (ViewGroup)findViewById(R.id.root_layout);
-        mSettingsButton = (ImageButton)findViewById(R.id.settings_button);
+        mRootView = (ViewGroup) findViewById(R.id.root_layout);
+        mSettingsButton = (ImageButton) findViewById(R.id.settings_button);
+        changeCameraButton = (ImageButton) findViewById(R.id.changeCameraButton);
         mStreamLiveStatus = (TextView) findViewById(R.id.stream_live_status);
         wrapperShareAndStream = (RelativeLayout) findViewById(R.id.wrapperShareAndStream);
         wrapperStreamSettings = (LinearLayout) findViewById(R.id.wrapperStreamSettings);
@@ -302,7 +306,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void initFAB() {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-
         fabLogout = (FloatingActionButton) findViewById(R.id.fab_logout);
         fabLogout.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         fabLogout.setOnClickListener(new View.OnClickListener() {
@@ -388,8 +391,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         IconItemDecoration iconItemDecoration = new IconItemDecoration(25);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(LiveVideoBroadcasterActivity.this, LinearLayoutManager.HORIZONTAL, false);
 
-        LinearSnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(horizontal_recycler_view);
+        //LinearSnapHelper snapHelper = new LinearSnapHelper();
+        //snapHelper.attachToRecyclerView(horizontal_recycler_view);
         horizontal_recycler_view.setLayoutManager(horizontalLayoutManager);
         horizontal_recycler_view.addItemDecoration(iconItemDecoration);
         horizontal_recycler_view.setAdapter(horizontalAdapter);
@@ -411,15 +414,16 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         if (viewClickedPage.length() == 0 || viewClickedPage == null) {
             if (arrayListPageNames.size() == 0 || arrayListPageNames == null) {
                 resetButtons();
-                Toast.makeText(getApplicationContext(), "No pages loaded, please check your connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "No blogs loaded, please check your connection", Toast.LENGTH_SHORT).show();
             }
 
             resetButtons();
-            Toast.makeText(getApplicationContext(), "Please select a page to start streaming", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Please select a blog to start streaming", Toast.LENGTH_SHORT).show();
         }
 
         else {
             if (selectedLivePage.verified == true && selectedLivePage.blogUrl != null && selectedLivePage.blogUrl.length() > 0) {
+                enableFBShare();
                 collapsePageScrollView();
                 recordingButtons();
                 LiveGateway liveGateway = new LiveGateway(getApplicationContext());
@@ -477,7 +481,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     /** Expand the scroll view by translating up **/
 
     public void expandPageScrollView() {
-        if (scrollViewExpanded == false) {
+        if (!scrollViewExpanded) {
             wrapperVideoScroll.animate().translationY(0);
             wrapperButtons.animate().translationY(0);
             scrollViewExpanded = true;
@@ -487,11 +491,25 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     /** Collapse scroll view by translating down **/
 
     public void collapsePageScrollView() {
-        if (scrollViewExpanded == true) {
+        if (scrollViewExpanded = true) {
             wrapperVideoScroll.animate().translationY(800);
             wrapperButtons.animate().translationY(400);
             scrollViewExpanded = false;
         }
+    }
+
+    public void expandShareLink() {
+            wrapperShareLink.setVisibility(View.VISIBLE);
+            wrapperShareLink.animate().alpha(1.0f);
+            mLiveFBMessageText.setVisibility(View.VISIBLE);
+            shareLinkExpanded = true;
+    }
+
+    public void collapseShareLink() {
+            mLiveFBMessageText.setVisibility(View.GONE);
+            wrapperShareLink.animate().alpha(0.0f);
+            wrapperShareLink.setVisibility(View.GONE);
+            shareLinkExpanded = false;
     }
 
     @Override
@@ -504,14 +522,24 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             fb_logo_click_counter++;
 
             if (fb_logo_click_counter % 2 == 1) {
-                wrapperShareLink.animate().alpha(1.0f);
+                expandShareLink();
+                //wrapperShareLink.animate().alpha(1.0f);
             }
 
             else {
-                wrapperShareLink.animate().alpha(0.0f);
+                collapseShareLink();
+                //wrapperShareLink.animate().alpha(0.0f);
             }
         }
 
+    }
+
+    public void enableFBShare() {
+        mLiveFBMessageSendButton.setBackground(getResources().getDrawable(R.drawable.live_share_button_enabled));
+        mLiveFBMessageSendButton.setEnabled(true);
+        mLiveFBMessageText.setEnabled(true);
+        mLiveFBMessageText.setText("");
+        mLiveFBMessageText.setHint(getResources().getString(R.string.fb_share_message));
     }
 
     public void disableFBShare() {
@@ -548,6 +576,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                         mLiveSendProgressBar.setVisibility(View.GONE);
                         mLiveFBMessageSendButton.setVisibility(View.VISIBLE);
                         disableFBShare();
+                        wrapperShareAndStream.setVisibility(View.GONE);
                         Snackbar.make(mRootView, "Successfully shared!", Snackbar.LENGTH_LONG).show();
                     } else {
                         mLiveSendProgressBar.setVisibility(View.GONE);
@@ -697,7 +726,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
     public void toggleBroadcasting(View v) {
         if (isLivePrepared) {
-            wrapperShareLink.animate().alpha(0.0f);
+            wrapperShareLink.setVisibility(View.GONE);
             if(!isConnecting) {
                 if (!mIsRecording)
                 {
@@ -751,7 +780,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                                 });
                                 mWebSocketClient.connect();
                                 mPingJob = liveGateway.setupPing(mWebSocketClient);
-                                showViewsCount();
+                                //showViewsCount();
                             }
 
                             catch (URISyntaxException e) {
