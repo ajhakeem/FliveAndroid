@@ -95,7 +95,7 @@
                 android:layout_height="40dp"
                 android:clickable="true"
                 android:visibility="visible"
-                app:srcCompat="@mipmap/fblogo_blue_100" />
+                app:srcCompat="@mipmap/fb_logo" />
 
             <RelativeLayout
                 android:id="@+id/wrapperShareLink"
