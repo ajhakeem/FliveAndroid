@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -11,6 +12,8 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
@@ -136,6 +139,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private boolean isLivePrepared = false;
     private boolean isCountdownFinished = false;
     private boolean isFabOpen;
+    private boolean isNetworkConnected = false;
     private long lastBackPressTime = 0;
     private Toast exitToast;
 
@@ -266,6 +270,18 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
         wrapperButtons.setVisibility(View.GONE);
 
+        try {
+            networkConnected();
+
+            if (isNetworkConnected == false) {
+                tvBlogSelect.setText(getResources().getString(R.string.no_connection_exists));
+            }
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         initFAB();
         hideViewsCount();
         initializeScrollItems();
@@ -279,14 +295,43 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
             @Override
             public void onFinish() {
-                tvCountdownTimer.setText("");
-                toggleBroadcasting(mBroadcastControlButton);
-                isCountdownFinished = true;
+
+                networkConnected();
+
+                if (isNetworkConnected == false) {
+                    tvCountdownTimer.setText("");
+                    isCountdownFinished = false;
+                    resetButtons();
+                    expandPageScrollView();
+                    Toast.makeText(getApplicationContext(), "No connection exists", Toast.LENGTH_SHORT).show();
+                }
+
+                else {
+                    tvCountdownTimer.setText("");
+                    toggleBroadcasting(mBroadcastControlButton);
+                    isCountdownFinished = true;
+                }
             }
 
         };
 
         //getScreenResolution();
+    }
+
+    public boolean networkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            isNetworkConnected = true;
+        }
+
+        else {
+            isNetworkConnected = false;
+            Toast.makeText(getApplicationContext(), "No connection exists", Toast.LENGTH_SHORT).show();
+        }
+
+        return isNetworkConnected;
     }
 
     public void initializeViewsCount() {
@@ -375,6 +420,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
                     hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
                     initializeScrollView(arrayListPageNames);
                 }
+
+                else {
+                    tvBlogSelect.setText(getResources().getString(R.string.no_blogs_exist));
+                }
             }
         });
 
@@ -412,7 +461,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     public void goLive() {
 
         if (viewClickedPage.length() == 0 || viewClickedPage == null) {
-            if (arrayListPageNames.size() == 0 || arrayListPageNames == null) {
+            if (arrayListPageNames.size() == 0 || arrayListPageNames == null || isNetworkConnected == false) {
                 resetButtons();
                 Toast.makeText(getApplicationContext(), "No blogs loaded, please check your connection", Toast.LENGTH_SHORT).show();
             }
@@ -444,15 +493,17 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
 
                         wrapperShareLink.setAlpha(0.0f);
                         wrapperStreamSettings.setVisibility(View.VISIBLE);
+                        recordCountdownTimer.start();
                     }
 
                     @Override
                     public void Onerror(VolleyError volleyError) {
-                        Toast.makeText(getApplicationContext(), "Could not get key. Contact support.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Could not get key. Please check connection or contact support.", Toast.LENGTH_SHORT).show();
+                        resetButtons();
+                        expandPageScrollView();
                     }
                 });
 
-                recordCountdownTimer.start();
             }
 
             else {
@@ -515,6 +566,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     @Override
     public void onClick(View v) {
         if (v == mBroadcastControlButton) {
+            networkConnected();
             goLive();
         }
 
@@ -825,6 +877,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             tvCountdownTimer.setText("");
             isCountdownFinished = false;
             mLiveVideoBroadcaster.stopBroadcasting();
+            resetButtons();
             expandPageScrollView();
             wrapperShareAndStream.setVisibility(View.GONE);
             wrapperStreamSettings.setVisibility(View.VISIBLE);
@@ -841,6 +894,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             tvCountdownTimer.setText("");
             isCountdownFinished = false;
             mLiveVideoBroadcaster.stopBroadcasting();
+            resetButtons();
             expandPageScrollView();
             wrapperShareAndStream.setVisibility(View.GONE);
             wrapperStreamSettings.setVisibility(View.VISIBLE);
