@@ -19,20 +19,24 @@ import co.fanstories.android.user.User;
 
 public class SplashActivity extends AppCompatActivity {
 
-    public static final int SPLASH_DISPLAY_LENGTH = 1000;
+    public static final int SPLASH_DISPLAY_LENGTH = 750;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-
-        try {
-            initialize();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Could not load. Contact the developer", Toast.LENGTH_SHORT).show();
-        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    initialize();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Could not load. Contact the developer", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, SPLASH_DISPLAY_LENGTH);
     }
 
     public void initialize() throws Exception {
