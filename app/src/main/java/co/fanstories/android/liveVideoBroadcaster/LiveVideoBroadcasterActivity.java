@@ -111,8 +111,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
     private TextView mStreamLiveStatus;
     private GLSurfaceView mGLView;
     private ILiveVideoBroadcaster mLiveVideoBroadcaster;
-    private Button mBroadcastControlButton;
-    private Button mStopBroadcast;
+    private ImageView mBroadcastControlButton;
+    private ImageView mStopBroadcast;
     private ImageView live_fb_logo;
     private ImageButton viewsIcon;
     private TextView viewsCount;
@@ -215,10 +215,10 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
         live_fb_logo = (ImageView) findViewById(R.id.live_fb_logo);
         live_fb_logo.setOnClickListener(this);
 
-        mBroadcastControlButton = (Button) findViewById(R.id.toggle_broadcasting);
+        mBroadcastControlButton = (ImageView) findViewById(R.id.toggle_broadcasting);
         mBroadcastControlButton.setOnClickListener(this);
 
-        mStopBroadcast = (Button) findViewById(R.id.stop_broadcast);
+        mStopBroadcast = (ImageView) findViewById(R.id.stop_broadcast);
         mStopBroadcast.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
