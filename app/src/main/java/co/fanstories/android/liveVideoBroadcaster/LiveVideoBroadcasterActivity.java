@@ -417,8 +417,12 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity implements V
             public void onSuccess(JSONArray response) throws JSONException {
                 if (response.length() > 0) {
                     arrayListPageNames = Pages.Page.fetchPageNames(response);
-                    hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
-                    initializeScrollView(arrayListPageNames);
+                    if(arrayListPageNames.size() > 0) {
+                        hashMapPageDetails = Pages.Page.hashFromJson(response, hashMapPageDetails);
+                        initializeScrollView(arrayListPageNames);
+                    } else {
+                        tvBlogSelect.setText(getResources().getString(R.string.no_blogs_exist));
+                    }
                 }
 
                 else {
