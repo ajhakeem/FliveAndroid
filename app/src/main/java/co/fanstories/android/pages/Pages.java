@@ -67,7 +67,7 @@ public class Pages {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
-                    if(jsonArray.getJSONObject(i).get("verified").equals("1")) {
+                    if(jsonArray.getJSONObject(i).get("verified").equals("1") && jsonArray.getJSONObject(i).get("blog_url") != null && !jsonArray.getJSONObject(i).get("blog_url").toString().isEmpty()) {
                         pageNames.add(jsonArray.getJSONObject(i).getString("name"));
                     }
                 }
