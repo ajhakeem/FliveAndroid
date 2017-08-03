@@ -15,7 +15,7 @@ import java.util.Map;
  */
 
 public class Http {
-    public static final String ROOT_URL = "https://testapi.fbfanadnetwork.com";
+    public static final String ROOT_URL = "https://fbfanads.com/fanads-backend";
     public static final boolean RETURNS_ARRAY = true;
     RequestQueue requestQueue;
 
